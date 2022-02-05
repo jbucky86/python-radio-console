@@ -13,14 +13,507 @@
     <link rel="stylesheet" href="https://editor.silex.me/static/2.12/normalize.css" data-silex-static="">
     <link rel="stylesheet" href="https://editor.silex.me/static/2.12/front-end.css" data-silex-static="">
 
-    <style type="text/css" class="silex-style"></style>
+    <style type="text/css" class="silex-style">.button-bar {display: table; table-layout: fixed; white-space: nowrap; margin: 0; padding: 0;}.button-bar__item {display: table-cell; width: auto; border-radius: 0;}.button-bar__item > input {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.button-bar__button {border-radius: inherit;}.button-bar__item:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.button,
+.topcoat-button,
+.topcoat-button--quiet,
+.topcoat-button--large,
+.topcoat-button--large--quiet,
+.topcoat-button--cta,
+.topcoat-button--large--cta,
+.topcoat-button-bar__button,
+.topcoat-button-bar__button--large {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.button--disabled,
+.topcoat-button:disabled,
+.topcoat-button--quiet:disabled,
+.topcoat-button--large:disabled,
+.topcoat-button--large--quiet:disabled,
+.topcoat-button--cta:disabled,
+.topcoat-button--large--cta:disabled,
+.topcoat-button-bar__button:disabled,
+.topcoat-button-bar__button--large:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-button,
+.topcoat-button--quiet,
+.topcoat-button--large,
+.topcoat-button--large--quiet,
+.topcoat-button--cta,
+.topcoat-button--large--cta,
+.topcoat-button-bar__button,
+.topcoat-button-bar__button--large {padding: 0 1.25rem; font-size: 16px; line-height: 3rem; letter-spacing: 1px; color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); vertical-align: top; background-color: #595b5b; box-shadow: inset 0 1px #737373; border: 1px solid #333434; border-radius: 6px;}.topcoat-button:hover,
+.topcoat-button--quiet:hover,
+.topcoat-button--large:hover,
+.topcoat-button--large--quiet:hover,
+.topcoat-button-bar__button:hover,
+.topcoat-button-bar__button--large:hover {background-color: #626465;}.topcoat-button:focus,
+.topcoat-button--quiet:focus,
+.topcoat-button--quiet:hover:focus,
+.topcoat-button--large:focus,
+.topcoat-button--large--quiet:focus,
+.topcoat-button--large--quiet:hover:focus,
+.topcoat-button--cta:focus,
+.topcoat-button--large--cta:focus,
+.topcoat-button-bar__button:focus,
+.topcoat-button-bar__button--large:focus {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1; outline: 0;}.topcoat-button:active,
+.topcoat-button--large:active,
+.topcoat-button-bar__button:active,
+.topcoat-button-bar__button--large:active,
+:checked + .topcoat-button-bar__button {border: 1px solid #333434; background-color: #3f4041; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-button--quiet:hover,
+.topcoat-button--large--quiet:hover {text-shadow: 0 -1px rgba(0,0,0,0.69); border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-button--quiet:active,
+.topcoat-button--quiet:focus:active,
+.topcoat-button--large--quiet:active,
+.topcoat-button--large--quiet:focus:active {color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); background-color: #3f4041; border: 1px solid #333434; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-button--large,
+.topcoat-button--large--quiet,
+.topcoat-button-bar__button--large {font-size: 1.3rem; font-weight: 400; line-height: 4.375rem; padding: 0 1.25rem;}.topcoat-button--large--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-button--cta,
+.topcoat-button--large--cta {border: 1px solid #134f7f; background-color: #288edf; box-shadow: inset 0 1px rgba(255,255,255,0.36); color: #fff; font-weight: 500; text-shadow: 0 -1px rgba(0,0,0,0.36);}.topcoat-button--cta:hover,
+.topcoat-button--large--cta:hover {background-color: #4ca1e4;}.topcoat-button--cta:active,
+.topcoat-button--large--cta:active {background-color: #1e7dc8; box-shadow: inset 0 1px rgba(0,0,0,0.12);}.topcoat-button--large--cta {font-size: 1.3rem; font-weight: 400; line-height: 4.375rem; padding: 0 1.25rem;}.button-bar,
+.topcoat-button-bar {display: table; table-layout: fixed; white-space: nowrap; margin: 0; padding: 5px;}.button-bar__item,
+.topcoat-button-bar__item {display: table-cell; width: auto; border-radius: 0; padding: 2px;}.button-bar__item > input,
+.topcoat-button-bar__item > input {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.button-bar__button {border-radius: inherit;}.button-bar__item:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-button-bar > .topcoat-button-bar__item:first-child {border-top-left-radius: 6px; border-bottom-left-radius: 6px;}.topcoat-button-bar > .topcoat-button-bar__item:last-child {border-top-right-radius: 6px; border-bottom-right-radius: 6px;}.topcoat-button-bar__item:first-child > .topcoat-button-bar__button,
+.topcoat-button-bar__item:first-child > .topcoat-button-bar__button--large {border-right: none;}.topcoat-button-bar__item:last-child > .topcoat-button-bar__button,
+.topcoat-button-bar__item:last-child > .topcoat-button-bar__button--large {border-left: none;}.topcoat-button-bar__button {border-radius: inherit;}.topcoat-button-bar__button:focus,
+.topcoat-button-bar__button--large:focus {z-index: 1;}.topcoat-button-bar__button--large {border-radius: inherit;}.button {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.button--disabled {opacity: 0.3; cursor: default; pointer-events: none;}.button,
+.topcoat-button,
+.topcoat-button--quiet,
+.topcoat-button--large,
+.topcoat-button--large--quiet,
+.topcoat-button--cta,
+.topcoat-button--large--cta {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.button--disabled,
+.topcoat-button:disabled,
+.topcoat-button--quiet:disabled,
+.topcoat-button--large:disabled,
+.topcoat-button--large--quiet:disabled,
+.topcoat-button--cta:disabled,
+.topcoat-button--large--cta:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-button,
+.topcoat-button--quiet,
+.topcoat-button--large,
+.topcoat-button--large--quiet,
+.topcoat-button--cta,
+.topcoat-button--large--cta {padding: 0 1.25rem; font-size: 16px; line-height: 3rem; letter-spacing: 1px; color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); vertical-align: top; background-color: #595b5b; box-shadow: inset 0 1px #737373; border: 1px solid #333434; border-radius: 6px;}.topcoat-button:hover,
+.topcoat-button--quiet:hover,
+.topcoat-button--large:hover,
+.topcoat-button--large--quiet:hover {background-color: #626465;}.topcoat-button:focus,
+.topcoat-button--quiet:focus,
+.topcoat-button--quiet:hover:focus,
+.topcoat-button--large:focus,
+.topcoat-button--large--quiet:focus,
+.topcoat-button--large--quiet:hover:focus,
+.topcoat-button--cta:focus,
+.topcoat-button--large--cta:focus {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1; outline: 0;}.topcoat-button:active,
+.topcoat-button--large:active {border: 1px solid #333434; background-color: #3f4041; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-button--quiet:hover,
+.topcoat-button--large--quiet:hover {text-shadow: 0 -1px rgba(0,0,0,0.69); border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-button--quiet:active,
+.topcoat-button--quiet:focus:active,
+.topcoat-button--large--quiet:active,
+.topcoat-button--large--quiet:focus:active {color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); background-color: #3f4041; border: 1px solid #333434; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-button--large,
+.topcoat-button--large--quiet {font-size: 1.3rem; font-weight: 400; line-height: 4.375rem; padding: 0 1.25rem;}.topcoat-button--large--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-button--cta,
+.topcoat-button--large--cta {border: 1px solid #134f7f; background-color: #288edf; box-shadow: inset 0 1px rgba(255,255,255,0.36); color: #fff; font-weight: 500; text-shadow: 0 -1px rgba(0,0,0,0.36);}.topcoat-button--cta:hover,
+.topcoat-button--large--cta:hover {background-color: #4ca1e4;}.topcoat-button--cta:active,
+.topcoat-button--large--cta:active {background-color: #1e7dc8; box-shadow: inset 0 1px rgba(0,0,0,0.12);}.topcoat-button--large--cta {font-size: 1.3rem; font-weight: 400; line-height: 4.375rem; padding: 0 1.25rem;}input[type="checkbox"] {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.checkbox {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.checkbox__label {position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.checkbox--disabled {opacity: 0.3; cursor: default; pointer-events: none;}.checkbox:before,
+.checkbox:after {content: ''; position: absolute;}.checkbox:before {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}input[type="checkbox"] {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.checkbox,
+.topcoat-checkbox__checkmark {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.checkbox__label,
+.topcoat-checkbox {position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.checkbox--disabled,
+input[type="checkbox"]:disabled + .topcoat-checkbox__checkmark {opacity: 0.3; cursor: default; pointer-events: none;}.checkbox:before,
+.checkbox:after,
+.topcoat-checkbox__checkmark:before,
+.topcoat-checkbox__checkmark:after {content: ''; position: absolute;}.checkbox:before,
+.topcoat-checkbox__checkmark:before {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.topcoat-checkbox__checkmark {height: 2rem;}input[type="checkbox"] {height: 2rem; width: 2rem; margin-top: 0; margin-right: -2rem; margin-bottom: -2rem; margin-left: 0;}input[type="checkbox"]:checked + .topcoat-checkbox__checkmark:after {opacity: 1;}.topcoat-checkbox {line-height: 2rem;}.topcoat-checkbox__checkmark:before {width: 2rem; height: 2rem; background: #595b5b; border: 1px solid #333434; border-radius: 3px; box-shadow: inset 0 1px #737373;}.topcoat-checkbox__checkmark {width: 2rem; height: 2rem;}.topcoat-checkbox__checkmark:after {top: 1px; left: 2px; opacity: 0; width: 28px; height: 11px; background: transparent; border: 7px solid #c6c8c8; border-width: 7px; border-top: none; border-right: none; border-radius: 2px; -webkit-transform: rotate(-50deg); -ms-transform: rotate(-50deg); transform: rotate(-50deg);}input[type="checkbox"]:focus + .topcoat-checkbox__checkmark:before {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1;}input[type="checkbox"]:active + .topcoat-checkbox__checkmark:before {border: 1px solid #333434; background-color: #3f4041; box-shadow: inset 0 1px rgba(0,0,0,0.05);}input[type="checkbox"]:disabled:active + .topcoat-checkbox__checkmark:before {border: 1px solid #333434; background: #595b5b; box-shadow: inset 0 1px #737373;}.button,
+.topcoat-icon-button,
+.topcoat-icon-button--quiet,
+.topcoat-icon-button--large,
+.topcoat-icon-button--large--quiet {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.button--disabled,
+.topcoat-icon-button:disabled,
+.topcoat-icon-button--quiet:disabled,
+.topcoat-icon-button--large:disabled,
+.topcoat-icon-button--large--quiet:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-icon-button,
+.topcoat-icon-button--quiet,
+.topcoat-icon-button--large,
+.topcoat-icon-button--large--quiet {padding: 0 0.75rem; line-height: 3rem; letter-spacing: 1px; color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); vertical-align: baseline; background-color: #595b5b; box-shadow: inset 0 1px #737373; border: 1px solid #333434; border-radius: 6px;}.topcoat-icon-button:hover,
+.topcoat-icon-button--quiet:hover,
+.topcoat-icon-button--large:hover,
+.topcoat-icon-button--large--quiet:hover {background-color: #626465;}.topcoat-icon-button:focus,
+.topcoat-icon-button--quiet:focus,
+.topcoat-icon-button--quiet:hover:focus,
+.topcoat-icon-button--large:focus,
+.topcoat-icon-button--large--quiet:focus,
+.topcoat-icon-button--large--quiet:hover:focus {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1; outline: 0;}.topcoat-icon-button:active,
+.topcoat-icon-button--large:active {border: 1px solid #333434; background-color: #3f4041; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-icon-button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-icon-button--quiet:hover,
+.topcoat-icon-button--large--quiet:hover {text-shadow: 0 -1px rgba(0,0,0,0.69); border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-icon-button--quiet:active,
+.topcoat-icon-button--quiet:focus:active,
+.topcoat-icon-button--large--quiet:active,
+.topcoat-icon-button--large--quiet:focus:active {color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); background-color: #3f4041; border: 1px solid #333434; box-shadow: inset 0 1px rgba(0,0,0,0.05);}.topcoat-icon-button--large,
+.topcoat-icon-button--large--quiet {width: 4.375rem; height: 4.375rem; line-height: 4.375rem;}.topcoat-icon-button--large--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.topcoat-icon,
+.topcoat-icon--large {position: relative; display: inline-block; vertical-align: middle; overflow: hidden; width: 1.62rem; height: 1.62rem; top: -1px;}.topcoat-icon--large {width: 2.499999998125rem; height: 2.499999998125rem; top: -2px;}.input {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none;}.input:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.list {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; overflow: auto; -webkit-overflow-scrolling: touch;}.list__header {margin: 0;}.list__container {padding: 0; margin: 0; list-style-type: none;}.list__item {margin: 0; padding: 0;}.list,
+.topcoat-list {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; overflow: auto; -webkit-overflow-scrolling: touch;}.list__header,
+.topcoat-list__header {margin: 0;}.list__container,
+.topcoat-list__container {padding: 0; margin: 0; list-style-type: none;}.list__item,
+.topcoat-list__item {margin: 0; padding: 0;}.topcoat-list {border-top: 1px solid #333434; border-bottom: 1px solid #616363; background-color: #454646;}.topcoat-list__header {padding: 4px 20px; font-size: 0.9em; font-weight: 400; background-color: #3f4041; color: #c6c8c8; text-shadow: 0 1px 0 rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.05);}.topcoat-list__container {border-top: 1px solid #333434; color: #c6c8c8;}.topcoat-list__item {padding: 1.25rem; border-top: 1px solid #616363; border-bottom: 1px solid #333434;}.topcoat-list__item:first-child {border-top: 1px solid rgba(0,0,0,0.05);}.navigation-bar {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; white-space: nowrap; overflow: hidden; word-spacing: 0; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.navigation-bar__item {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none;}.navigation-bar__title {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}.navigation-bar,
+.topcoat-navigation-bar {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; white-space: nowrap; overflow: hidden; word-spacing: 0; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.navigation-bar__item,
+.topcoat-navigation-bar__item {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none;}.navigation-bar__title,
+.topcoat-navigation-bar__title {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}.topcoat-navigation-bar {height: 4.375rem; padding-left: 1rem; padding-right: 1rem; background: #595b5b; color: #fff; box-shadow: inset 0 -1px #333434, 0 1px #454646;}.topcoat-navigation-bar__item {margin: 0; line-height: 4.375rem; vertical-align: top;}.topcoat-navigation-bar__title {font-size: 1.3rem; font-weight: 400; color: #fff;}.notification {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.notification,
+.topcoat-notification {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.topcoat-notification {padding: 0.15em 0.5em 0.2em; border-radius: 2px; background-color: #ec514e; color: #fff;}input[type="radio"] {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.radio-button {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.radio-button__label {position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.radio-button:before,
+.radio-button:after {content: ''; position: absolute; border-radius: 100%;}.radio-button:after {top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%);}.radio-button:before {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.radio-button--disabled {opacity: 0.3; cursor: default; pointer-events: none;}input[type="radio"] {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.radio-button,
+.topcoat-radio-button__checkmark {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.radio-button__label,
+.topcoat-radio-button {position: relative; display: inline-block; vertical-align: top; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.radio-button:before,
+.radio-button:after,
+.topcoat-radio-button__checkmark:before,
+.topcoat-radio-button__checkmark:after {content: ''; position: absolute; border-radius: 100%;}.radio-button:after,
+.topcoat-radio-button__checkmark:after {top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%);}.radio-button:before,
+.topcoat-radio-button__checkmark:before {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.radio-button--disabled,
+input[type="radio"]:disabled + .topcoat-radio-button__checkmark {opacity: 0.3; cursor: default; pointer-events: none;}input[type="radio"] {height: 1.875rem; width: 1.875rem; margin-top: 0; margin-right: -1.875rem; margin-bottom: -1.875rem; margin-left: 0;}input[type="radio"]:checked + .topcoat-radio-button__checkmark:after {opacity: 1;}.topcoat-radio-button {color: #c6c8c8; line-height: 1.875rem;}.topcoat-radio-button__checkmark:before {width: 1.875rem; height: 1.875rem; background: #595b5b; border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-radio-button__checkmark {position: relative; width: 1.875rem; height: 1.875rem;}.topcoat-radio-button__checkmark:after {opacity: 0; width: 0.875rem; height: 0.875rem; background: #c6c8c8; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 1px rgba(255,255,255,0.1); -webkit-transform: none; -ms-transform: none; transform: none; top: 7px; left: 7px;}input[type="radio"]:focus + .topcoat-radio-button__checkmark:before {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1;}input[type="radio"]:active + .topcoat-radio-button__checkmark:before {border: 1px solid #333434; background-color: #3f4041; box-shadow: inset 0 1px rgba(0,0,0,0.05);}input[type="radio"]:disabled:active + .topcoat-radio-button__checkmark:before {border: 1px solid #333434; background: #595b5b; box-shadow: inset 0 1px #737373;}.range {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none; -webkit-appearance: none;}.range__thumb {cursor: pointer;}.range__thumb--webkit {cursor: pointer; -webkit-appearance: none;}.range:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.range,
+.topcoat-range {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none; -webkit-appearance: none;}.range__thumb,
+.topcoat-range::-moz-range-thumb {cursor: pointer;}.range__thumb--webkit,
+.topcoat-range::-webkit-slider-thumb {cursor: pointer; -webkit-appearance: none;}.range:disabled,
+.topcoat-range:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-range {border-radius: 30px; border: 1px solid #333434; background-color: #454646; height: 1rem;}.topcoat-range::-moz-range-track {border-radius: 30px; border: 1px solid #333434; background-color: #454646; height: 1rem;}.topcoat-range::-webkit-slider-thumb {height: 3rem; width: 2rem; background-color: #595b5b; border: 1px solid #333434; border-radius: 6px; box-shadow: inset 0 1px #737373;}.topcoat-range::-moz-range-thumb {height: 3rem; width: 2rem; background-color: #595b5b; border: 1px solid #333434; border-radius: 6px; box-shadow: inset 0 1px #737373;}.topcoat-range:focus::-webkit-slider-thumb {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1;}.topcoat-range:focus::-moz-range-thumb {border: 1px solid #0036ff; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1;}.topcoat-range:active::-webkit-slider-thumb {border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-range:active::-moz-range-thumb {border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.search-input {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none; -webkit-appearance: none;}input[type="search"]::-webkit-search-cancel-button {-webkit-appearance: none;}.search-input:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.search-input,
+.topcoat-search-input,
+.topcoat-search-input--large {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none; -webkit-appearance: none;}input[type="search"]::-webkit-search-cancel-button {-webkit-appearance: none;}.search-input:disabled,
+.topcoat-search-input:disabled,
+.topcoat-search-input--large:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-search-input,
+.topcoat-search-input--large {line-height: 3rem; height: 3rem; font-size: 16px; border: 1px solid #333434; background-color: #454646; box-shadow: inset 0 1px 0 rgba(0,0,0,0.23); color: #c6c8c8; padding: 0 0 0 2rem; border-radius: 30px; background-image: url(../img/search.svg); background-position: 1rem center; background-repeat: no-repeat; background-size: 16px;}.topcoat-search-input:focus,
+.topcoat-search-input--large:focus {background-color: #595b5b; color: #fff; border: 1px solid #0036ff; box-shadow: inset 0 1px 0 rgba(0,0,0,0.23), 0 0 0 2px #6fb5f1;}.topcoat-search-input::-webkit-search-cancel-button,
+.topcoat-search-input::-webkit-search-decoration,
+.topcoat-search-input--large::-webkit-search-cancel-button,
+.topcoat-search-input--large::-webkit-search-decoration {margin-right: 5px;}.topcoat-search-input:focus::-webkit-input-placeholder,
+.topcoat-search-input:focus::-webkit-input-placeholder {color: #c6c8c8;}.topcoat-search-input:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-search-input:disabled::-moz-placeholder {color: #fff;}.topcoat-search-input:disabled:-ms-input-placeholder {color: #fff;}.topcoat-search-input--large {line-height: 4.375rem; height: 4.375rem; font-size: 1.3rem; font-weight: 400; padding: 0 0 0 2.9rem; border-radius: 40px; background-position: 1.2rem center; background-size: 1.3rem;}.topcoat-search-input--large:disabled {color: #fff;}.topcoat-search-input--large:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-search-input--large:disabled::-moz-placeholder {color: #fff;}.topcoat-search-input--large:disabled:-ms-input-placeholder {color: #fff;}.switch {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.switch__input {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.switch__toggle {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.switch__toggle:before,
+.switch__toggle:after {content: ''; position: absolute; z-index: -1; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.switch--disabled {opacity: 0.3; cursor: default; pointer-events: none;}.switch,
+.topcoat-switch {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.switch__input,
+.topcoat-switch__input {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.switch__toggle,
+.topcoat-switch__toggle {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}.switch__toggle:before,
+.switch__toggle:after,
+.topcoat-switch__toggle:before,
+.topcoat-switch__toggle:after {content: ''; position: absolute; z-index: -1; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box;}.switch--disabled,
+.topcoat-switch__input:disabled + .topcoat-switch__toggle {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-switch {font-size: 16px; padding: 0 1.25rem; border-radius: 6px; border: 1px solid #333434; overflow: hidden; width: 6rem;}.topcoat-switch__toggle:before,
+.topcoat-switch__toggle:after {top: -1px; width: 5rem;}.topcoat-switch__toggle:before {content: 'ON'; color: #288edf; background-color: #3f4041; right: 1rem; padding-left: 1.5rem;}.topcoat-switch__toggle {line-height: 3rem; height: 3rem; width: 2rem; border-radius: 6px; color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); background-color: #595b5b; border: 1px solid #333434; margin-left: -1.3rem; margin-bottom: -1px; margin-top: -1px; box-shadow: inset 0 1px #737373; -webkit-transition: margin-left 0.05s ease-in-out; transition: margin-left 0.05s ease-in-out;}.topcoat-switch__toggle:after {content: 'OFF'; background-color: #3f4041; left: 1rem; padding-left: 2rem;}.topcoat-switch__input:checked + .topcoat-switch__toggle {margin-left: 2.7rem;}.topcoat-switch__input:active + .topcoat-switch__toggle {border: 1px solid #333434; box-shadow: inset 0 1px #737373;}.topcoat-switch__input:focus + .topcoat-switch__toggle {border: 1px solid #0036ff; box-shadow: 0 0 0 2px #6fb5f1;}.topcoat-switch__input:disabled + .topcoat-switch__toggle:after,
+.topcoat-switch__input:disabled + .topcoat-switch__toggle:before {background: transparent;}.button,
+.topcoat-tab-bar__button {position: relative; display: inline-block; vertical-align: top; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; text-decoration: none;}.button--quiet {background: transparent; border: 1px solid transparent; box-shadow: none;}.button--disabled,
+.topcoat-tab-bar__button:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.button-bar,
+.topcoat-tab-bar {display: table; table-layout: fixed; white-space: nowrap; margin: 0; padding: 0;}.button-bar__item,
+.topcoat-tab-bar__item {display: table-cell; width: auto; border-radius: 0;}.button-bar__item > input,
+.topcoat-tab-bar__item > input {position: absolute; overflow: hidden; padding: 0; border: 0; opacity: 0.001; z-index: 1; vertical-align: top; outline: none;}.button-bar__button {border-radius: inherit;}.button-bar__item:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-tab-bar__button {padding: 0 1.25rem; height: 3rem; line-height: 3rem; letter-spacing: 1px; color: #c6c8c8; text-shadow: 0 -1px rgba(0,0,0,0.69); vertical-align: top; background-color: #595b5b; box-shadow: inset 0 1px #737373; border-top: 1px solid #333434;}.topcoat-tab-bar__button:active,
+.topcoat-tab-bar__button--large:active,
+:checked + .topcoat-tab-bar__button {color: #288edf; background-color: #3f4041; box-shadow: inset 0 0 1px rgba(0,0,0,0.05);}.topcoat-tab-bar__button:focus,
+.topcoat-tab-bar__button--large:focus {z-index: 1; box-shadow: inset 0 1px rgba(255,255,255,0.36), 0 0 0 2px #6fb5f1; outline: 0;}.input,
+.topcoat-text-input,
+.topcoat-text-input--large {padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; -moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; vertical-align: top; outline: none;}.input:disabled,
+.topcoat-text-input:disabled,
+.topcoat-text-input--large:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-text-input,
+.topcoat-text-input--large {line-height: 3rem; font-size: 16px; letter-spacing: 1px; padding: 0 1.25rem; border: 1px solid #333434; border-radius: 6px; background-color: #454646; box-shadow: inset 0 1px rgba(0,0,0,0.05); color: #c6c8c8; vertical-align: top;}.topcoat-text-input:focus,
+.topcoat-text-input--large:focus {background-color: #595b5b; color: #fff; border: 1px solid #0036ff; box-shadow: 0 0 0 2px #6fb5f1;}.topcoat-text-input:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-text-input:disabled::-moz-placeholder {color: #fff;}.topcoat-text-input:disabled:-ms-input-placeholder {color: #fff;}.topcoat-text-input:invalid {border: 1px solid #ec514e;}.topcoat-text-input--large {line-height: 4.375rem; font-size: 1.3rem;}.topcoat-text-input--large:disabled {color: #fff;}.topcoat-text-input--large:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-text-input--large:disabled::-moz-placeholder {color: #fff;}.topcoat-text-input--large:disabled:-ms-input-placeholder {color: #fff;}.topcoat-text-input--large:invalid {border: 1px solid #ec514e;}.textarea {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; vertical-align: top; resize: none; outline: none;}.textarea:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.textarea,
+.topcoat-textarea,
+.topcoat-textarea--large {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; vertical-align: top; resize: none; outline: none;}.textarea:disabled,
+.topcoat-textarea:disabled,
+.topcoat-textarea--large:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-textarea,
+.topcoat-textarea--large {padding: 2rem; font-size: 2.5rem; font-weight: 400; border-radius: 6px; line-height: 3rem; border: 1px solid #333434; background-color: #454646; box-shadow: inset 0 1px rgba(0,0,0,0.05); color: #c6c8c8; letter-spacing: 1px;}.topcoat-textarea:focus,
+.topcoat-textarea--large:focus {background-color: #595b5b; color: #fff; border: 1px solid #0036ff; box-shadow: 0 0 0 2px #6fb5f1;}.topcoat-textarea:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-textarea:disabled::-moz-placeholder {color: #fff;}.topcoat-textarea:disabled:-ms-input-placeholder {color: #fff;}.topcoat-textarea--large {font-size: 3rem; line-height: 4.375rem;}.topcoat-textarea--large:disabled {color: #fff;}.topcoat-textarea--large:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-textarea--large:disabled::-moz-placeholder {color: #fff;}.topcoat-textarea--large:disabled:-ms-input-placeholder {color: #fff;}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Regular.otf);}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Light.otf); font-weight: 200;}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Semibold.otf); font-weight: 600;}body {margin: 0; padding: 0; background: #4b4d4e; color: #000; font: 16px "Source Sans", helvetica, arial, sans-serif; font-weight: 400;}:focus {outline-color: transparent; outline-style: none;}.topcoat-icon--menu-stack {background: url(../img/hamburger_light.svg no-repeat); background-size: cover;}.quarter {width: 25%;}.half {width: 50%;}.three-quarters {width: 75%;}.third {width: 33.333%;}.two-thirds {width: 66.666%;}.full {width: 100%;}.left {text-align: left;}.center {text-align: center;}.right {text-align: right;}.reset-ui {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}</style>
     <script type="text/javascript" class="silex-script"></script>
     <style class="silex-inline-styles" type="text/css">.body-initial {background-color: rgba(255,255,255,1); position: static;}.silex-id-1478366444112-1 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366444112-0 {background-color: transparent; min-height: 100px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1474394621033-3 {position: static; margin-top: -1px;}.silex-id-1474394621032-2 {background-color: transparent; min-height: 272px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1478366450713-3 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366450713-2 {background-color: transparent; min-height: 285px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1442914737143-3 {width: 241px; top: 26px; left: 494px; min-height: 51px; position: absolute;}@media only screen and (max-width: 480px) {}</style>
     <title></title>
     
 
     
-<style class="silex-prodotype-style" type="text/css" data-style-id="all-style">.text-element > .silex-element-content {font-family: 'Roboto', sans-serif;}</style><link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" class="silex-custom-font"><meta name="viewport" content="width=device-width, initial-scale=1"><style type="text/css" class="silex-style-settings">.website-width {width: 1200px;}@media (min-width: 481px) {.silex-editor {min-width: 1400px;}}</style></head>
+<style class="silex-prodotype-style" type="text/css" data-style-id="all-style">.text-element > .silex-element-content {font-family: 'Roboto', sans-serif;}</style><link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" class="silex-custom-font"><meta name="viewport" content="width=device-width, initial-scale=1"><style type="text/css" class="silex-style-settings">.website-width {width: 1200px;}@media (min-width: 481px) {.silex-editor {min-width: 1400px;}}</style><!-- Silex HEAD tag do not remove --><html>
+    <head>
+        <title>Python Radio Console</title>
+
+        <!-- Topcoat CSS -->
+        <link rel="stylesheet" type="text/css" href="css/topcoat-mobile-dark.css">
+
+        <!-- CSS.gg Icons -->
+        <link href='https://css.gg/css' rel='stylesheet'>
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+        <!-- JQuery -->
+        <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
+
+        <!-- DayJS -->
+        <script type="text/javascript" src="dayjs.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/dayjs@1.8.21/plugin/utc.js"></script>
+        <script>dayjs.extend(window.dayjs_plugin_utc)</script>
+
+        <!-- js-cookie -->
+        <script type="text/javascript" src="js.cookie.min.js"></script>
+
+        <!-- audio resampler -->
+        <script type="text/javascript" src="wave-resampler.js"></script>
+    </head>
+    <body>
+        <!-- Top Nav Bar -->
+        <div id="navbar">
+
+            <!-- Menu Dropdown -->
+            <div class="navbar-item">
+                <button id="button-mainmenu" class="topcoat-button--quiet" onclick="toggleMainMenu()">
+                    <ion-icon name="menu-sharp"></ion-icon>
+                </button>
+            </div>
+
+            <!-- Logo and Title -->
+            <div id="navbar-logo" class="navbar-item">RadioConsole</div>
+
+            <!-- Version -->
+            <div id="navbar-version" class="navbar-item">v0.1 - </div>
+
+            <!-- Server Status -->
+            <div id="navbar-status" class="navbar-item">Disconnected</div>
+
+            <!-- Clock -->
+            <div id="navbar-clock">
+                <div id="clock"></div>
+            </div>
+
+            <!-- Volume Slider -->
+            <div id="navbar-volume" class="navbar-item">
+                <ion-icon name="volume-medium-sharp"></ion-icon>
+                <input type="range" class="topcoat-range" id="console-volume" value="75" oninput="changeVolume()" disabled>
+            </div>
+
+            <!-- Mic & Speaker Volume Meters -->
+            <div id="navbar-meters" class="navbar-item">
+                <div class="meter-container">
+                    <ion-icon name="mic-sharp"></ion-icon>
+                    <meter id="meter-mic" min="0" max="0.4" high="0.3"></meter>
+                </div>
+                <div class="meter-container">
+                    <ion-icon name="volume-off-sharp"></ion-icon>
+                    <meter id="meter-spkr" min="0" max="0.4" high="0.3"></meter>
+                </div>
+            </div>
+
+            <!-- Clear Float -->
+            <br class="navbar-clear" />
+        </div>
+
+        <!-- Main Body -->
+        <div id="body">
+            <!-- Sidebar Menu -->
+            <div class="sidebar sidebar-closed" id="sidebar-mainmenu">
+                <ul>
+                    <li>
+                        <a href="#" onclick="showPopup('#server-config-popup');toggleMainMenu();">
+                            <span class="sidebar-icon"><ion-icon name="server-sharp"></ion-icon></span>
+                            <span class="sidebar-item">Server Config</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showPopup('#client-config-popup');toggleMainMenu();">
+                            <span class="sidebar-icon"><ion-icon name="settings-sharp"></ion-icon></span>
+                            <span class="sidebar-item">Client Config</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="sidebar-icon"><ion-icon name="information-circle-sharp"></ion-icon></span>
+                            <span class="sidebar-item">About</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Layout for Radio Entries -->
+            <div id="main-layout">
+
+                <!-- Radio Cards will populate here -->
+
+            </div>
+
+            <!-- Placeholder text before connection to server -->
+            <div id="text-placeholder" style="display: none;">
+                <h2>Please connect to a server to begin.</h2>
+            </div>
+
+            <!-- Main Body Dimming Div -->
+            <div id="body-dimmer" style="display: none;" onclick="closePopup()"></div>
+        </div>
+
+        <!-- Control Footer -->
+        <div id="controlbar">
+
+            <!-- Radio Controls -->
+            <div id="ptt-controls">
+                <!-- Left Button Bar -->
+				<div class="topcoat-button-bar">
+					<!-- Ptt Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-ptt" title="PTT" class="topcoat-button-bar__button--large" onpointerdown="startPtt()" onpointerup="stopPtt()" disabled>
+                            <span>PTT</span>
+                        </button>
+                    </div>
+				</div>
+			</div>
+			<div id="radio0-controls">
+                <div class="topcoat-button-bar">
+                    <!-- Mon Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-mon" title="Monitor" class="topcoat-button-bar__button--large" onclick="toggleMonitor()" disabled>
+                            <ion-icon name="volume-off-sharp"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Nuis Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-nuis" title="Nuisance Delete" class="topcoat-button-bar__button--large" onclick="nuisanceDelete()" disabled>
+                            <ion-icon name="ban-sharp"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Low Power Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-lpwr" title="Low Power" class="topcoat-button-bar__button--large" onclick="togglePower()" disabled>
+                            <ion-icon name="speedometer-outline"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Scan Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-scan" title="Scan" class="topcoat-button-bar__button--large" onclick="toggleScan()" disabled>
+                            <ion-icon name="reload-sharp"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Dir Button -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-dir" title="Talkaround" class="topcoat-button-bar__button--large" onclick="toggleDirect()" disabled>
+                            <ion-icon name="exit-sharp"></ion-icon>
+                        </button>
+                    </div>
+                </div>
+			</div>
+			<div id="radio1-controls">
+                <!-- Selected Channel LCD screen -->
+                <div class="lcd">
+                    <div id="selected-zone-text"></div>
+                    <div id="selected-chan-text"></div>
+                </div>
+			</div>
+			<div id="radio2-controls">
+                <!-- Right Button Bar -->
+                <div class="topcoat-button-bar">
+                    <!-- Channel Down -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-chanup" title="Channel Down" class="topcoat-button-bar__button--large" onclick="changeChannel(true)" disabled>
+                            <ion-icon name="caret-down-sharp"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Channel Up -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-chandn" title="Channel Up" class="topcoat-button-bar__button--large" onclick="changeChannel(false)" disabled>
+                            <ion-icon name="caret-up-sharp"></ion-icon>
+                        </button>
+                    </div>
+                </div>
+				<!-- Right Button Bar 2 -->
+                <div class="topcoat-button-bar">
+					<!-- Brightness Down -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-britup" title="Brightness Down" class="topcoat-button-bar__button--large" onclick="changeBrightness(true)" disabled>
+                            <ion-icon name="caret-down-sharp"></ion-icon>
+                        </button>
+                    </div>
+                    <!-- Brightness Up -->
+                    <div class="topcoat-button-bar__item">
+                        <button id="control-britdn" title="Brightness Up" class="topcoat-button-bar__button--large" onclick="changeBrightness(false)" disabled>
+                            <ion-icon name="caret-up-sharp"></ion-icon>
+                        </button>
+                    </div>
+				</div>
+            </div>
+        </div>
+
+        <!-- Server Config Popup -->
+        <div id="server-config-popup" class="popup" style="display: none;">
+            <div class="popup-header">
+                <h2>Server Config</h2>
+                <div class="popup-buttons">
+                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
+                </div>
+            </div>
+            <div class="popup-content">
+                <table class="popup-table">
+                    <!-- Server address -->
+                    <tr>
+                        <td width="33%">
+                            <h3>Server Address</h3>
+                        </td>
+                        <td width="67%">
+                            <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-address" value="" placeholder="IP address or hostname">
+                        </td>
+                    </tr>
+                    <!-- Server Port -->
+                    <tr>
+                        <td>
+                            <h3>Server Port</h3>
+                        </td>
+                        <td>
+                            <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-port" value="" placeholder="Port number">
+                        </td>
+                    </tr>
+                    <!-- Connect / Disconnect Button -->
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="topcoat-button--cta" id="server-connect-btn" onclick="connectButton()">Connect</button>
+                        </td>
+                    </tr>
+                    <!-- Auto-connect -->
+                    <tr>
+                        <td>
+                            <h3>Auto-Connect</h3>
+                        </td>
+                        <td>
+                            <label class="topcoat-checkbox">
+                                <input type="checkbox" id="server-autoconnect">
+                                <div class="topcoat-checkbox__checkmark"></div>
+                            </label>
+                        </td>
+                    </tr>
+                    <!-- Save Button -->
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="topcoat-button--cta" onclick="saveServerConfig(); closePopup(this)">Save</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Client Config Popup -->
+        <div id="client-config-popup" class="popup" style="display: none;">
+            <div class="popup-header">
+                <h2>Client Config</h2>
+                <div class="popup-buttons">
+                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
+                </div>
+            </div>
+            <div class="popup-content">
+                <table class="popup-table">
+                    <!-- Time Format -->
+                    <tr>
+                        <td width="33%">
+                            <h3>Time Format</h3>
+                        </td>
+                        <td width="67%">
+                            <select id="client-timeformat">
+                                <option value="Local">Local</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="topcoat-button--cta" onclick="saveClientConfig()">Save</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sound Files -->
+        <audio src="sound/TRBO_Normal_TPT.mp3" id="sound-tx-granted" autostart="false" autostart="0"></audio>
+
+        <!-- Icon Script -->
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <!-- Runtime Script -->
+        <script type="text/javascript" src="client.js"></script>
+    </body>
+    
+</html><!-- End of Silex HEAD tag do not remove --></head>
 
 <body data-silex-id="body-initial" class="body-initial all-style enable-mobile prevent-resizable prevent-selectable editable-style silex-runtime" data-silex-type="container-element" style="">
     
