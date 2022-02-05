@@ -1,281 +1,66 @@
-<html>
-    <head>
-        <title>Python Radio Console</title>
+<!DOCTYPE html><html class="" lang=""><head><script type="text/javascript" class="silex-json-styles" data-silex-static="">
+    window.silex = window.silex || {}
+    window.silex.data = {"site":{"width":1200},"pages":[{"id":"page-page-1","displayName":"Page 1","link":{"linkType":"LinkTypePage","href":"#!page-page-1"},"canDelete":true,"canProperties":true,"canMove":true,"canRename":true,"opened":false}]}</script>
+    <meta charset="UTF-8">
+    <!-- generator meta tag -->
+    <!-- leave this for stats and Silex version check -->
+    <meta name="generator" content="Silex v2.2.13">
+    <!-- End of generator meta tag -->
+    <script type="text/javascript" src="https://editor.silex.me/static/2.12/jquery.js" data-silex-static=""></script>
+    <script type="text/javascript" src="https://editor.silex.me/static/2.12/jquery-ui.js" data-silex-static="" data-silex-remove-publish=""></script>
+    <script type="text/javascript" src="https://editor.silex.me/static/2.12/pageable.js" data-silex-static="" data-silex-remove-publish=""></script>
+    <script type="text/javascript" src="https://editor.silex.me/static/2.12/front-end.js" data-silex-static=""></script>
+    <link rel="stylesheet" href="https://editor.silex.me/static/2.12/normalize.css" data-silex-static="">
+    <link rel="stylesheet" href="https://editor.silex.me/static/2.12/front-end.css" data-silex-static="">
 
-        <!-- Topcoat CSS -->
-        <link rel="stylesheet" type="text/css" href="css/topcoat-mobile-dark.css">
-
-        <!-- CSS.gg Icons -->
-        <link href='https://css.gg/css' rel='stylesheet'>
-
-        <!-- Custom CSS -->
-        <link rel="stylesheet" type="text/css" href="css/custom.css">
-
-        <!-- JQuery -->
-        <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
-
-        <!-- DayJS -->
-        <script type="text/javascript" src="dayjs.min.js"></script>
-        <script type="text/javascript" src="https://unpkg.com/dayjs@1.8.21/plugin/utc.js"></script>
-        <script>dayjs.extend(window.dayjs_plugin_utc)</script>
-
-        <!-- js-cookie -->
-        <script type="text/javascript" src="js.cookie.min.js"></script>
-
-        <!-- audio resampler -->
-        <script type="text/javascript" src="wave-resampler.js"></script>
-    </head>
-    <body>
-        <!-- Top Nav Bar -->
-        <div id="navbar">
-
-            <!-- Menu Dropdown -->
-            <div class="navbar-item">
-                <button id="button-mainmenu" class="topcoat-button--quiet" onclick="toggleMainMenu()">
-                    <ion-icon name="menu-sharp"></ion-icon>
-                </button>
-            </div>
-
-            <!-- Logo and Title -->
-            <div id="navbar-logo" class="navbar-item">RadioConsole</div>
-
-            <!-- Version -->
-            <div id="navbar-version" class="navbar-item">v0.1 - </div>
-
-            <!-- Server Status -->
-            <div id="navbar-status" class="navbar-item">Disconnected</div>
-
-            <!-- Clock -->
-            <div id="navbar-clock">
-                <div id="clock"></div>>
-            </div>
-
-            <!-- Volume Slider -->
-            <div id="navbar-volume" class="navbar-item">
-                <ion-icon name="volume-medium-sharp"></ion-icon>
-                <input type="range" class="topcoat-range" id="console-volume" value="75" oninput="changeVolume()" disabled>
-            </div>
-
-            <!-- Mic & Speaker Volume Meters -->
-            <div id="navbar-meters" class="navbar-item">
-                <div class="meter-container">
-                    <ion-icon name="mic-sharp"></ion-icon>
-                    <meter id="meter-mic" min="0" max="0.4" high="0.3"></meter>
-                </div>
-                <div class="meter-container">
-                    <ion-icon name="volume-off-sharp"></ion-icon>
-                    <meter id="meter-spkr" min="0" max="0.4" high="0.3"></meter>
-                </div>
-            </div>
-
-            <!-- Clear Float -->
-            <br class="navbar-clear" />
-        </div>
-
-        <!-- Main Body -->
-        <div id="body">
-            <!-- Sidebar Menu -->
-            <div class="sidebar sidebar-closed" id="sidebar-mainmenu">
-                <ul>
-                    <li>
-                        <a href="#" onclick="showPopup('#server-config-popup');toggleMainMenu();">
-                            <span class="sidebar-icon"><ion-icon name="server-sharp"></ion-icon></span>
-                            <span class="sidebar-item">Server Config</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" onclick="showPopup('#client-config-popup');toggleMainMenu();">
-                            <span class="sidebar-icon"><ion-icon name="settings-sharp"></ion-icon></span>
-                            <span class="sidebar-item">Client Config</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="sidebar-icon"><ion-icon name="information-circle-sharp"></ion-icon></span>
-                            <span class="sidebar-item">About</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Main Layout for Radio Entries -->
-            <div id="main-layout">
-
-                <!-- Radio Cards will populate here -->
-
-            </div>
-
-            <!-- Placeholder text before connection to server -->
-            <div id="text-placeholder" style="display: none;">
-                <h2>Please connect to a server to begin.</h2>
-            </div>
-
-            <!-- Main Body Dimming Div -->
-            <div id="body-dimmer" style="display: none;" onclick="closePopup()"></div>
-        </div>
-
-        <!-- Control Footer -->
-        <div id="controlbar">
-
-            <!-- Radio Controls -->
-            <div id="radio-controls">
-                <!-- Left Button Bar -->
-                <div class="topcoat-button-bar">
-                    <!-- Mon Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-mon" title="Monitor" class="topcoat-button-bar__button--large" onclick="toggleMonitor()" disabled>
-                            <ion-icon name="volume-off-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Nuis Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-nuis" title="Nuisance Delete" class="topcoat-button-bar__button--large" onclick="nuisanceDelete()" disabled>
-                            <ion-icon name="ban-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Low Power Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-lpwr" title="Low Power" class="topcoat-button-bar__button--large" onclick="togglePower()" disabled>
-                            <span>L</span>
-                        </button>
-                    </div>
-                    <!-- Scan Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-scan" title="Scan" class="topcoat-button-bar__button--large" onclick="toggleScan()" disabled>
-                            <ion-icon name="reload-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Dir Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-dir" title="Talkaround" class="topcoat-button-bar__button--large" onclick="toggleDirect()" disabled>
-                            <ion-icon name="exit-sharp"></ion-icon>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Selected Channel LCD screen -->
-                <div class="lcd">
-                    <div id="selected-zone-text"></div>
-                    <div id="selected-chan-text"></div>
-                </div>
-
-                <!-- Right Button Bar -->
-                <div class="topcoat-button-bar">
-                    <!-- Channel Down -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-chanup" title="Channel Down" class="topcoat-button-bar__button--large" onclick="changeChannel(true)" disabled>
-                            <ion-icon name="caret-down-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Channel Up -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-chandn" title="Channel Up" class="topcoat-button-bar__button--large" onclick="changeChannel(false)" disabled>
-                            <ion-icon name="caret-up-sharp"></ion-icon>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-
-        <!-- Server Config Popup -->
-        <div id="server-config-popup" class="popup" style="display: none;">
-            <div class="popup-header">
-                <h2>Server Config</h2>
-                <div class="popup-buttons">
-                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
-                </div>
-            </div>
-            <div class="popup-content">
-                <table class="popup-table">
-                    <!-- Server address -->
-                    <tr>
-                        <td width="33%">
-                            <h3>Server Address</h3>
-                        </td>
-                        <td width="67%">
-                            <input type="text" class="topcoat-text-input" id="server-address" value="" placeholder="IP address or hostname">
-                        </td>
-                    </tr>
-                    <!-- Server Port -->
-                    <tr>
-                        <td>
-                            <h3>Server Port</h3>
-                        </td>
-                        <td>
-                            <input type="text" class="topcoat-text-input" id="server-port" value="" placeholder="Port number">
-                        </td>
-                    </tr>
-                    <!-- Connect / Disconnect Button -->
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" id="server-connect-btn" onclick="connectButton()">Connect</button>
-                        </td>
-                    </tr>
-                    <!-- Auto-connect -->
-                    <tr>
-                        <td>
-                            <h3>Auto-Connect</h3>
-                        </td>
-                        <td>
-                            <label class="topcoat-checkbox">
-                                <input type="checkbox" id="server-autoconnect">
-                                <div class="topcoat-checkbox__checkmark"></div>
-                            </label>
-                        </td>
-                    </tr>
-                    <!-- Save Button -->
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" onclick="saveServerConfig()">Save</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Client Config Popup -->
-        <div id="client-config-popup" class="popup" style="display: none;">
-            <div class="popup-header">
-                <h2>Client Config</h2>
-                <div class="popup-buttons">
-                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
-                </div>
-            </div>
-            <div class="popup-content">
-                <table class="popup-table">
-                    <!-- Time Format -->
-                    <tr>
-                        <td width="33%">
-                            <h3>Time Format</h3>
-                        </td>
-                        <td width="67%">
-                            <select id="client-timeformat">
-                                <option value="Local">Local</option>
-                                <option value="UTC">UTC</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" onclick="saveClientConfig()">Save</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Sound Files -->
-        <audio src="sound/tx_granted.wav" id="sound-tx-granted" autostart="false" autostart="0"></audio>
-
-        <!-- Icon Script -->
-        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-        <!-- Runtime Script -->
-        <script type="text/javascript" src="client.js"></script>
-    </body>
+    <style type="text/css" class="silex-style"></style>
+    <script type="text/javascript" class="silex-script"></script>
+    <style class="silex-inline-styles" type="text/css">.body-initial {background-color: rgba(255,255,255,1); position: static;}.silex-id-1478366444112-1 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366444112-0 {background-color: transparent; min-height: 100px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1474394621033-3 {position: static; margin-top: -1px;}.silex-id-1474394621032-2 {background-color: transparent; min-height: 600px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1478366450713-3 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366450713-2 {background-color: transparent; min-height: 100px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1442914737143-3 {width: 241px; top: 26px; left: 494px; min-height: 51px; position: absolute;}@media only screen and (max-width: 480px) {}</style>
+    <title></title>
     
-</html>
+
+    
+<style class="silex-prodotype-style" type="text/css" data-style-id="all-style">.text-element > .silex-element-content {font-family: 'Roboto', sans-serif;}</style><link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" class="silex-custom-font"><meta name="viewport" content="width=device-width, initial-scale=1"><style type="text/css" class="silex-style-settings">.website-width {width: 1200px;}@media (min-width: 481px) {.silex-editor {min-width: 1400px;}}</style></head>
+
+<body data-silex-id="body-initial" class="body-initial all-style enable-mobile prevent-resizable prevent-selectable editable-style silex-runtime" data-silex-type="container-element" style="">
+    
+
+
+
+
+
+
+
+
+
+    <section data-silex-type="container-element" class="container-element editable-style silex-id-1478366444112-1 section-element prevent-resizable" data-silex-id="silex-id-1478366444112-1" style="">
+        <div data-silex-type="container-element" class="editable-style silex-element-content silex-id-1478366444112-0 container-element website-width" data-silex-id="silex-id-1478366444112-0"></div>
+    </section>
+    <section data-silex-type="container-element" class="container-element editable-style silex-id-1474394621033-3 section-element prevent-resizable" data-silex-id="silex-id-1474394621033-3" style="">
+        <div data-silex-type="container-element" class="editable-style silex-element-content silex-id-1474394621032-2 container-element website-width selected" data-silex-id="silex-id-1474394621032-2"></div>
+    </section>
+    <section data-silex-type="container-element" class="container-element editable-style silex-id-1478366450713-3 section-element prevent-resizable" data-silex-id="silex-id-1478366450713-3" style="">
+        <div data-silex-type="container-element" class="editable-style silex-element-content silex-id-1478366450713-2 container-element website-width" data-silex-id="silex-id-1478366450713-2">
+
+            <div data-silex-id="silex-id-1442914737143-3" class="editable-style silex-id-1442914737143-3 text-element" data-silex-type="text-element" style="">
+                <div class="silex-element-content normal"><p>Powered by <a href="https://www.silex.me/" target="_blank" title="Silex website builder,  free and open source" linktype="LinkTypeExternal">Silex website builder</a></p></div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>
