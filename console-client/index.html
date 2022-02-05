@@ -201,318 +201,1665 @@ input[type="radio"]:disabled + .topcoat-radio-button__checkmark {opacity: 0.3; c
 .topcoat-textarea--large:disabled {opacity: 0.3; cursor: default; pointer-events: none;}.topcoat-textarea,
 .topcoat-textarea--large {padding: 2rem; font-size: 2.5rem; font-weight: 400; border-radius: 6px; line-height: 3rem; border: 1px solid #333434; background-color: #454646; box-shadow: inset 0 1px rgba(0,0,0,0.05); color: #c6c8c8; letter-spacing: 1px;}.topcoat-textarea:focus,
 .topcoat-textarea--large:focus {background-color: #595b5b; color: #fff; border: 1px solid #0036ff; box-shadow: 0 0 0 2px #6fb5f1;}.topcoat-textarea:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-textarea:disabled::-moz-placeholder {color: #fff;}.topcoat-textarea:disabled:-ms-input-placeholder {color: #fff;}.topcoat-textarea--large {font-size: 3rem; line-height: 4.375rem;}.topcoat-textarea--large:disabled {color: #fff;}.topcoat-textarea--large:disabled::-webkit-input-placeholder {color: #fff;}.topcoat-textarea--large:disabled::-moz-placeholder {color: #fff;}.topcoat-textarea--large:disabled:-ms-input-placeholder {color: #fff;}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Regular.otf);}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Light.otf); font-weight: 200;}@font-face {font-family: "Source Sans"; src: url(../font/SourceSansPro-Semibold.otf); font-weight: 600;}body {margin: 0; padding: 0; background: #4b4d4e; color: #000; font: 16px "Source Sans", helvetica, arial, sans-serif; font-weight: 400;}:focus {outline-color: transparent; outline-style: none;}.topcoat-icon--menu-stack {background: url(../img/hamburger_light.svg no-repeat); background-size: cover;}.quarter {width: 25%;}.half {width: 50%;}.three-quarters {width: 75%;}.third {width: 33.333%;}.two-thirds {width: 66.666%;}.full {width: 100%;}.left {text-align: left;}.center {text-align: center;}.right {text-align: right;}.reset-ui {-moz-box-sizing: border-box; box-sizing: border-box; background-clip: padding-box; position: relative; display: inline-block; vertical-align: top; padding: 0; margin: 0; font: inherit; color: inherit; background: transparent; border: none; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}</style>
-    <script type="text/javascript" class="silex-script"></script>
-    <style class="silex-inline-styles" type="text/css">.body-initial {background-color: rgba(255,255,255,1); position: static;}.silex-id-1478366444112-1 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366444112-0 {background-color: transparent; min-height: 100px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1478366450713-3 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366450713-2 {background-color: transparent; min-height: 285px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1442914737143-3 {width: 241px; top: 26px; left: 494px; min-height: 51px; position: absolute;}.silex-id-1644075474949-2 {min-height: 100px; background-color: rgb(255, 255, 255); position: relative; margin-left: auto; margin-right: auto;}@media only screen and (max-width: 480px) {}</style>
+    <script type="text/javascript" class="silex-script">/***********************************************************************************
+    Global Variables
+***********************************************************************************/
+
+// User Config Var
+var config = {
+    timeFormat: "Local",
+
+    serverAddress: "",
+    serverPort: 0,
+    serverAutoConn: false
+}
+
+// Radio List (populated from server)
+var radioList = [];
+
+// Websocket connection to server
+var serverSocket = null;
+
+// Audio variables
+var audio = {
+    // Audio context
+    context: null,
+    // Input device, stream, meter, etc
+    input: null,
+    inputStream: null,
+    inputAnalyzer: null,
+    inputPcmData: null,
+    inputMeter: document.getElementById("meter-mic"),
+    // Output device, analyzer, and gain (for volume)
+    output: null,
+    outputGain: null,
+    outputAnalyzer: null,
+    outputPcmData: null,
+    outputMeter: document.getElementById("meter-spkr"),
+    dummyOutput: new Audio()
+}
+
+// WebRTC Variables
+var rtc = {
+    // Peer connection object
+    peer: null,
+    // Audio codec (Opus 48khz stereo)
+    codec: "opus/48000/2"
+}
+
+testInput = null,
+
+/***********************************************************************************
+    State variables
+***********************************************************************************/
+
+// Detected timezone
+timeZone = "";
+// Selected radio
+var selectedRadio = null;
+var selectedRadioIdx = null;
+// PTT state
+var pttActive = false;
+// Menu state
+var menuOpen = false;
+// server disconnect commanded
+var disconnecting = false;
+
+/***********************************************************************************
+    Page Setup Functions
+***********************************************************************************/
+
+/**
+ * Page load function. Starts timers, etc.
+ */
+function pageLoad() {
+    console.log("Starting client-side runtime");
+    // Read config
+    readConfig();
+
+    // Get client timezone
+    const d = new Date();
+    timeZone = d.toLocaleString('en', { timeZoneName: 'short' }).split(' ').pop();
+
+    // Setup clock timer
+    setInterval(updateClock, 250);
+
+    // Connect and load if autoconnect is true
+    if (config.serverAutoConn) {
+        connect()
+    }
+
+    // Bind body click to deselecting radios
+    //$("#body").click(function () {
+    //    deselectRadios();
+    //});
+}
+
+/**
+ * Connect to websocket and setup audio
+ */
+function connect() {
+    // Update navbar
+    $("#navbar-status").html("Connecting");
+    $("#navbar-status").addClass("pending");
+    // Connect websocket first
+    connectWebsocket();
+    // Start audio devices if they're not already started
+    if (!audio.context) {
+        startAudioDevices();
+    }
+    // Wait for the websocket to be connected, then start WebRTC
+    waitForWebSocket(serverSocket, startWebRtc);
+}
+
+/**
+ * Called when GUI is fully connected to server
+ */
+function connected() {
+    // Change button
+    $("#server-connect-btn").html("Disconnect");
+    $("#server-connect-btn").prop("disabled",false);
+    // Change status
+    $("#navbar-status").html("Connected");
+    $("#navbar-status").removeClass("pending");
+    $("#navbar-status").addClass("connected");
+    // Get radios
+    serverSocket.send(
+        `{
+            "radios": {
+                "command": "query"
+            }
+        }`
+    )
+}
+
+/**
+ * Disconnect from websocket and teardown audio devices
+ */
+function disconnect() {
+    // Change button
+    $("#server-connect-btn").html("Disconnecting...");
+    $("#server-connect-btn").prop("disabled", true);
+    // Change status
+    $("#navbar-status").html("Disconnecting");
+    $("#navbar-status").removeClass("connected");
+    $("#navbar-status").addClass("pending");
+    // Change status
+    disconnecting = true;
+    // disconnect websocket
+    disconnectWebsocket();
+}
+
+/**
+ * Called when client is done disconnecting
+ */
+function disconnected() {
+    // Update button
+    $("#server-connect-btn").html("Connect");
+    $("#server-connect-btn").prop("disabled", false);
+    // Change status
+    $("#navbar-status").html("Disconnected");
+    $("#navbar-status").removeClass("connected");
+    $("#navbar-status").removeClass("pending");
+    // Clear radio cards
+    clearRadios();
+    // Disable volume slider
+    $("#console-volume").prop('disabled', true);
+    // Reset variables
+    disconnecting = false;
+}
+
+// Keydown handler
+$(document).on("keydown", function (e) {
+    switch (e.which) {
+        // Spacebar
+        case 32:
+            e.preventDefault();
+            startPtt();
+            break;
+    }
+});
+
+// Keyup handler
+$(document).on("keyup", function (e) {
+    switch (e.which) {
+        // Spacebar
+        case 32:
+            e.preventDefault();
+            stopPtt();
+            break;
+    }
+});
+
+// Handle losing focus of the window
+$(window).blur(function () {
+    if (pttActive) {
+        console.warn("Killing active PTT due to window focus lost")
+        stopPtt();
+    }
+})
+
+// Bind pageLoad function to document load
+$(document).ready(pageLoad());
+
+/***********************************************************************************
+    Radio UI Functions
+***********************************************************************************/
+
+/**
+ * Select a radio
+ * @param {string} id the id of the radio to select
+ */
+function selectRadio(id) {
+    console.log("Selecting radio " + id);
+    // If the radio was already selected, deselect it
+    if (selectedRadio == id) {
+        // Deselect all radio cards
+        deselectRadios();
+        // Remove the selected class
+        $(`#${id}`).removeClass("selected");
+        // Disable the radio controls
+        updateRadioControls();
+        // Update the variables
+        selectedRadio = null;
+        selectedRadioIdx = null;
+    } else {
+        // Deselect all radio cards
+        deselectRadios();
+        // Select the new radio card
+        $(`#${id}`).addClass("selected");
+        // Update the variable
+        selectedRadio = id;
+        selectedRadioIdx = getRadioIndex(id);
+        // Update controls
+        updateRadioControls();
+    }
+}
+
+/**
+ * Deselect all radios
+ */
+function deselectRadios() {
+    // Stop PTT if we're transmitting
+    stopPtt();
+    // Remove selected class from all radio cards
+    $(".radio-card").removeClass("selected");
+    // Set selected radio to null
+    selectedRadio = null;
+    selectedRadioIdx = null;
+    // Update controls
+    updateRadioControls();
+}
+
+/**
+ * Populate radio cards based on the radios in radioList[] and bind their buttons
+ */
+function populateRadios() {
+    // Add a card for each radio in the list
+    radioList.forEach((radio, index) => {
+        console.log("Adding radio " + radio.name);
+        // Add the radio card
+        addRadioCard("radio" + String(index), radio.name);
+        // Populate its text
+        updateRadioCard(index);
+    });
+    // Bind the cards
+    bindRadioCardButtons();
+}
+
+/**
+ * Clear radio cards and remove all radios from radioList
+ */
+function clearRadios() {
+    // deselect any selected radios
+    deselectRadios();
+    // Clear main layout
+    $("#main-layout").empty();
+    // Clear radio list
+    radioList = [];
+}
+
+/**
+ * Add a radio card with the specified id and name
+ * @param {string} id ID of the card element
+ * @param {string} name Name to display in header
+ */
+function addRadioCard(id, name) {
+    var newCardHtml = `
+        <div class="radio-card" id="${id}">
+            <div class="header">
+                <div class="selected-icon">
+                    <ion-icon name="caret-forward-circle-sharp"></ion-icon>
+                </div>
+                <h2>${name}</h2>
+                <div class="icon-stack">
+                    <a href="#" onclick="toggleMute(event, this)" class="enabled"><ion-icon name="volume-high-sharp" id="icon-mute"></ion-icon></a>
+                    <a href="#"><ion-icon name="warning-sharp" id="icon-alert"></ion-icon></a>
+                </div>
+            </div>
+            <div class="content">
+                <div>
+                    <h3>CHANNEL</h3>
+                    <div id="channel-text" class="value-frame"></div>
+                </div>
+                <div>
+                    <h3>LAST ID</h3>
+                    <div id="id-text" class="value-frame"></div>
+                </div>
+            </div>
+            <div class="footer"></div>
+        </div>
+    `;
+
+    $("#main-layout").append(newCardHtml);
+}
+
+/**
+ * Binds radio card buttons & click events to functions
+ */
+function bindRadioCardButtons() {
+    // Bind clicking of the card to selection of a radio
+    $(".radio-card").on('click', function (event) {
+        // Prevent continual propagation
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        // Get the ID of the selecting item
+        var cardId = $(this).attr('id');
+        // Select the radio
+        selectRadio(cardId);
+    })
+    // Bind the minimize button
+    $(".minimize-radio-card").click(function (event) {
+
+    })
+}
+
+function updateRadioCard(idx) {
+    // Get radio from radioList
+    var radio = radioList[idx];
+
+    // Get card object
+    var radioCard = $("#radio" + String(idx));
+
+    // Update text boxes
+    radioCard.find("#channel-text").html(radio.chan);
+    radioCard.find("#id-text").html(radio.lastid);
+
+    // Remove all current classes
+    radioCard.removeClass("transmitting");
+    radioCard.removeClass("receiving");
+    radioCard.removeClass("disconnected");
+
+    // Update radio state
+    switch (radio.state) {
+        case "Transmitting":
+            radioCard.addClass("transmitting");
+            break;
+        case "Receiving":
+            radioCard.addClass("receiving");
+            break;
+        case "Disconnected":
+            radioCard.addClass("disconnected");
+            break;
+    }
+
+    // Update mute icon
+    if (radio.muted) {
+        radioCard.find("#icon-mute").attr('name', 'volume-mute-sharp');
+        radioCard.find("#icon-mute").addClass("muted");
+    } else {
+        radioCard.find("#icon-mute").attr('name', 'volume-high-sharp');
+        radioCard.find("#icon-mute").removeClass("muted");
+    }
+
+    // Update alert icon
+    if (radio.error) {
+        radioCard.find("#icon-alert").addClass("alerting");
+    } else {
+        radioCard.find("#icon-alert").removeClass("alerting");
+    }
+}
+
+/**
+ * Update the bottom control bar based on the selected radio
+ */
+function updateRadioControls() {
+    // Update if we have a selected radio
+    if (selectedRadio) {
+        // Get the radio from the list
+        var radio = radioList[selectedRadioIdx];
+        // If the radio is disconnected, don't enable the controls
+        if (radio.state == "Disconnected") { return }
+        // Populate text
+        $("#selected-zone-text").html(radio.zone);
+        $("#selected-chan-text").html(radio.chan);
+        // Enable buttons
+        $("#radio-controls button").prop("disabled", false);
+        // Set buttons to active based on state
+        if (radio.scanning) { $("#control-scan").addClass("button-active") } else { $("#control-scan").removeClass("button-active") }
+        if (radio.talkaround) { $("#control-dir").addClass("button-active") } else { $("#control-dir").removeClass("button-active") }
+        if (radio.monitor) { $("#control-mon").addClass("button-active") } else { $("#control-mon").removeClass("button-active") }
+        if (radio.lowpower) { $("#control-lpwr").addClass("button-active") } else { $("#control-lpwr").removeClass("button-active") }
+        // Clear if we don't
+    } else {
+        // Clear text
+        $("#selected-zone-text").html("");
+        $("#selected-chan-text").html("");
+        // Disable buttons
+        $("#radio-controls button").prop('disabled', true);
+        $("#radio-controls button").removeClass("button-active");
+    }
+}
+
+/***********************************************************************************
+    Radio Backend Functions
+***********************************************************************************/
+
+/**
+ * Start radio PTT
+ */
+function startPtt() {
+    if (!pttActive && selectedRadio) {
+        console.log("Starting PTT on " + selectedRadio);
+        pttActive = true;
+        playSound("sound-tx-granted");
+        // Only send the TX command if we have a valid socket
+        if (serverSocket) {
+            serverSocket.send(
+                `{
+                    "radioControl": {
+                        "index": ${selectedRadioIdx},
+                        "command": "startTx",
+                        "options": null
+                    }
+                }`
+            );
+        }
+    } else if (!pttActive && !selectedRadio) {
+        pttActive = true;
+        console.log("No radio selected, ignoring PTT");
+    }
+}
+
+/**
+ * Stop radio PTT
+ */
+function stopPtt() {
+    if (pttActive) {
+        console.log("PTT released");
+        pttActive = false;
+        if (serverSocket && selectedRadio) {
+            // Wait 250ms and then stop TX (handles mic latency)
+            setTimeout( function() {
+                serverSocket.send(
+                    `{
+                        "radioControl": {
+                            "index": ${selectedRadioIdx},
+                            "command": "stopTx",
+                            "options": null
+                        }
+                    }`
+                )
+            }, 250);
+        }
+    }
+}
+
+/**
+ * Change channel on selected radio
+ * @param {bool} down Whether to go down or not (heh)
+ */
+function changeChannel(down) {
+    if (!pttActive && selectedRadio && serverSocket) {
+        if (down) {
+            console.log("Changing channel down on " + selectedRadio);
+            serverSocket.send(
+                `{
+                    "radioControl": {
+                        "index": ${selectedRadioIdx},
+                        "command": "chanDn",
+                        "options": null
+                    }
+                }`
+            );
+        } else {
+            console.log("Changing channel up on " + selectedRadio);
+            serverSocket.send(
+                `{
+                    "radioControl": {
+                        "index": ${selectedRadioIdx},
+                        "command": "chanUp",
+                        "options": null
+                    }
+                }`
+            );
+        }
+    }
+}
+
+/**
+ * Toggle monitor
+ */
+function toggleMonitor() {
+    if (!pttActive && selectedRadio && serverSocket) {
+        console.log("Toggling monitor on " + selectedRadio);
+        serverSocket.send(
+            `{
+                "radioControl": {
+                    "index": ${selectedRadioIdx},
+                    "command": "button",
+                    "options": "monitor"
+                }
+            }`
+        )
+    }
+}
+
+/**
+ * Hit nuisance delete button
+ */
+ function nuisanceDelete() {
+    if (!pttActive && selectedRadio && serverSocket) {
+        console.log("Nuisance delete: " + selectedRadio);
+        serverSocket.send(
+            `{
+                "radioControl": {
+                    "index": ${selectedRadioIdx},
+                    "command": "button",
+                    "options": "nuisance"
+                }
+            }`
+        )
+    }
+}
+
+/**
+ * Toggle low power
+ */
+function togglePower() {
+    if (!pttActive && selectedRadio && serverSocket) {
+        console.log("Toggling power on " + selectedRadio);
+        serverSocket.send(
+            `{
+                "radioControl": {
+                    "index": ${selectedRadioIdx},
+                    "command": "button",
+                    "options": "power"
+                }
+            }`
+        )
+    }
+}
+
+/**
+ * Turn scan on or off for selected radio
+ */
+function toggleScan() {
+    if (!pttActive && selectedRadio && serverSocket) {
+        console.log("Toggling scan for " + selectedRadio);
+        serverSocket.send(
+            `{
+                "radioControl": {
+                    "index": ${selectedRadioIdx},
+                    "command": "button",
+                    "options": "scan"
+                }
+            }`
+        )
+    }
+}
+
+/**
+ * Toggle talkaround (I should really standardize on Talkaround vs Direct)
+ */
+function toggleDirect() {
+    if (!pttActive && selectedRadio && serverSocket) {
+        console.log("Toggling talkaround for " + selectedRadio);
+        serverSocket.send(
+            `{
+                "radioControl": {
+                    "index": ${selectedRadioIdx},
+                    "command": "button",
+                    "options": "direct"
+                }
+            }`
+        )
+    }
+}
+
+/**
+ * Toggle the status of radio mute
+ * @param {string} obj element whose parent radio to toggle mute on
+ */
+function toggleMute(event, obj) {
+    // Only do stuff if we have a socket connection
+    if (serverSocket != null) {
+        // Get ID of radio to mute
+        const radioId = $(obj).closest(".radio-card").attr('id');
+        // Get index of radio in list
+        const idx = getRadioIndex(radioId);
+        // Change mute status
+        if (radioList[idx].muted) {
+            console.log("Unmuting " + radioId);
+            serverSocket.send(
+                `{
+                    "audioControl": {
+                        "command": "unmute",
+                        "index": ${idx}
+                    }
+                }`
+            )
+        } else {
+            console.log("Muting " + radioId);
+            serverSocket.send(
+                `{
+                    "audioControl": {
+                        "command": "mute",
+                        "index": ${idx}
+                    }
+                }`
+            )
+        }
+        // Update card
+        //updateRadioCard(idx);
+        // Stop propagation so we don't also select the muted radio
+        event.stopPropagation();
+    }
+}
+
+/***********************************************************************************
+    Global UI Functions
+***********************************************************************************/
+
+/**
+ * Toggles the state of the sidebar menu
+ */
+function toggleMainMenu() {
+    if (menuOpen) {
+        $("#sidebar-mainmenu").addClass("sidebar-closed");
+        $("#button-mainmenu").removeClass("button-active")
+        menuOpen = false;
+    } else {
+        $("#sidebar-mainmenu").removeClass("sidebar-closed");
+        $("#button-mainmenu").addClass("button-active")
+        menuOpen = true;
+    }
+}
+
+/**
+ * Shows the specified popup and dims the main screen behind it
+ * @param {string} id element ID of the popup to show
+ */
+function showPopup(id) {
+    $("#body-dimmer").show();
+    $(id).show();
+}
+
+/**
+ * Close a popup window and undim the background
+ * @param {string} obj the object whose parent .popup window will be closed
+ */
+function closePopup(obj = null) {
+    // Close specific popup if specified
+    if (obj) {
+        $(obj).closest(".popup").hide();
+    }
+    // Close all popups otherwise
+    else {
+        $('.popup').hide();
+    }
+    $("#body-dimmer").hide();
+}
+
+/**
+ * Update the clock based on the selected time format
+ */
+function updateClock() {
+    var timestr = "HH:mm:ss"
+    if (config.timeFormat == "Local") {
+        var time = getTimeLocal(timestr);
+        $("#clock").html(time + " " + timeZone);
+    } else if (config.timeFormat == "UTC") {
+        $("#clock").html(getTimeUTC(timestr + " UTC"));
+    } else {
+        console.error("Invalid time format!")
+    }
+}
+
+function connectButton() {
+    // Connect if we're not connected
+    if (!serverSocket) {
+        connect();
+    } else if (serverSocket && !disconnecting) {
+        disconnect();
+    }
+}
+
+/***********************************************************************************
+    Global Backend Functions
+***********************************************************************************/
+
+/**
+ * Returns UTC time string in given format
+ * @param {string} formatString Time formatting string
+ * @returns the formatted time string
+ */
+function getTimeUTC(formatString) {
+    // Get UTC time
+    var now = dayjs.utc();
+    return now.format(formatString);
+}
+
+/**
+ * Returns local time string in given format
+ * @param {string} formatString Time formatting string
+ * @returns the formatted local time string
+ */
+function getTimeLocal(formatString) {
+    // Get local time
+    var now = dayjs();
+    return now.format(formatString);
+}
+
+/**
+ * Get radio index from id string (radio1 returns 1)
+ * @param {string} id radio id
+ * @returns index of radio
+ */
+function getRadioIndex(id) {
+    return idx = parseInt(id.replace("radio", ""));
+}
+
+/**
+ * Save the server config input
+ */
+function saveServerConfig() {
+    // Disconnect from existing server
+
+    // Get values
+    var address = $("#server-address").val();
+    var port = $("#server-port").val();
+    var autoconnect = $("#server-autoconnect").prop('checked');
+
+    // Remove invalid class
+    $("#server-port").removeClass("invalid");
+
+    // Validate port
+    if (parseInt(port) < 1 || parseInt(port) > 65535) {
+        $("#server-port").addClass("invalid");
+        return
+    }
+
+    // Save config info
+    config.serverAddress = address;
+    config.serverPort = port;
+    config.serverAutoConn = autoconnect;
+
+    // Save config to cookie
+    saveConfig();
+}
+
+/**
+ * Save the client config
+ */
+function saveClientConfig() {
+    // Get values
+    var timeFormat = $("#client-timeformat").val()
+
+    // Set config
+    config.timeFormat = timeFormat;
+
+    // Save config to cookie
+    saveConfig();
+}
+
+/**
+ * Save config to cookie, as JSON
+ */
+function saveConfig() {
+    // Convert config object to cookie
+    configJson = JSON.stringify(config);
+    console.log("Saving config json: " + configJson);
+    // Save to cookie
+    Cookies.set('config',configJson);
+}
+
+function readConfig() {
+    // Read config from cookie
+    configJson = Cookies.get('config');
+    // Only try and parse if we have a stored config cookie
+    if (configJson) {
+        // Convert to config object
+        config = JSON.parse(configJson);
+        // Update server popup values
+        $("#server-address").val(config.serverAddress);
+        $("#server-port").val(config.serverPort);
+        $("#server-autoconnect").prop('checked',config.serverAutoConn);
+        // Update client popup values
+        $("#client-timeformat").val(config.timeFormat);
+    } else {
+        console.warn("No config cookie detected, using defaults");
+    }
+}
+
+/***********************************************************************************
+    WebRTC Functions
+
+    These are adapted/borrowed from:
+    https://github.com/webrtc/samples/tree/gh-pages/src/content/peerconnection/audio
+***********************************************************************************/
+
+/**
+ * Initiate WebRTC connection with server
+ * @returns {boolean} true if connection starts successfully
+ */
+function startWebRtc() {
+    console.log("Starting WebRTC session");
+    $("#navbar-status").html("Connecting WebRTC");
+
+    // Create peer
+    rtc.peer = createPeerConnection();
+    if (rtc.peer) {
+        console.log("Created peer connection");
+    } else {
+        console.error("Failed to create peer connection");
+        return false
+    }
+    
+    // Find the right getUserMedia()
+    if (!navigator.getUserMedia) {
+		navigator.getUserMedia = (
+			navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia
+		);
+    }
+		
+    // Open the microphone
+    if (typeof navigator.mediaDevices.getUserMedia === 'undefined') {
+        // Get the microphone
+        navigator.getUserMedia({audio:true},
+            // Add tracks to peer connection and negotiate if successful
+            function(stream) {
+                // Set up mic meter dependecies
+                audio.inputStream = audio.context.createMediaStreamSource(stream);
+                audio.inputAnalyzer = audio.context.createAnalyser();
+                audio.inputPcmData = new Float32Array(audio.inputAnalyzer.fftSize);
+                audio.inputStream.connect(audio.inputAnalyzer);
+                // Add the first available mic track to the peer connection
+                rtc.peer.addTrack(stream.getTracks()[0])
+                // Create and send the WebRTC offer
+                return sendRtcOffer();
+            },
+            // Report a failure to capture mic
+            function(e) {
+                alert('Error capturing microphone device');
+                return false;
+            }
+        );
+    } else {
+        navigator.mediaDevices.getUserMedia({audio:true})
+        .then(function(stream) {
+                // Set up mic meter dependecies
+            audio.inputStream = audio.context.createMediaStreamSource(stream);
+            audio.inputAnalyzer = audio.context.createAnalyser();
+            audio.inputPcmData = new Float32Array(audio.inputAnalyzer.fftSize);
+            audio.inputStream.connect(audio.inputAnalyzer);
+            // Add the first available mic track to the peer connection
+            rtc.peer.addTrack(stream.getTracks()[0])
+            // Create and send the WebRTC offer
+            return sendRtcOffer();
+        })
+        // Report a failure to capture mic
+        .catch(function(e) {
+            alert('Error capturing microphone device');
+            return false;
+		});
+    }
+}
+
+function stopWebRtc() {
+
+    // Close any active peer transceivers
+    if (rtc.peer.getTransceivers) {
+        rtc.peer.getTransceivers().forEach(function(tx) {
+            if (tx.stop) {
+                tx.stop();
+            }
+        })
+    }
+
+    // Close any local audio
+    rtc.peer.getSenders().forEach(function(sender) {
+        sender.track.stop();
+    });
+
+    // Close peer connection
+    setTimeout(function() {
+        rtc.peer.close();
+    }, 500);
+}
+
+/**
+ * Create a new WebRTC peer connection
+ * @returns {RTCPeerConnection} the created peer connection object
+ */
+function createPeerConnection() {
+
+    // Create config object
+    var config = {
+        sdpSemantics: 'unified-plan'
+    };
+
+    // Create peer
+    var peer = new RTCPeerConnection(config);
+
+    // Register event listeners for debug
+    peer.addEventListener('icegatheringstatechange', function() {
+        console.log(`new peer iceGatheringState: ${peer.iceGatheringState}`);
+    }, false);
+
+    peer.addEventListener('iceconnectionstatechange', function() {
+        console.log(`new peer iceConnectionState: ${peer.iceConnectionState}`);
+        if (peer.iceConnectionState == "connected") {
+            connected();
+        }
+    }, false);
+
+    peer.addEventListener('signalingstatechange', function() {
+        console.log(`new peer signallingState: ${peer.signalingState}`);
+    })
+
+    // Print initial states
+    console.log(`new peer iceGatheringState: ${peer.iceGatheringState}`);
+    console.log(`new peer iceConnectionState: ${peer.iceConnectionState}`);
+    console.log(`new peer signallingState: ${peer.signalingState}`);
+
+    // Connect audio stream from peer to the web audio objects
+    peer.addEventListener('track', function(event) {
+        if (event.track.kind == 'audio') {
+            console.log("Got new audio track from server");
+            // Attach the stream to a dummy audio output so it plays (needed in chrome for some reason)
+            audio.dummyOutput.muted = true;
+            audio.dummyOutput.srcObject = event.streams[0];
+            audio.dummyOutput.play();
+            // Create audio source from the track and attach it to the gain node & audio analyzer
+            var source = audio.context.createMediaStreamSource(event.streams[0]);
+            source.connect(audio.outputGain);
+            source.connect(audio.outputAnalyzer);
+            // If we got a speaker track back, we have both audio streams and can start the meter frame callback
+            window.requestAnimationFrame(audioMeterCallback);
+        }
+    })
+
+    // Return the new peer object
+    return peer;
+}
+
+/**
+ * Create and send the SDP offer to the server
+ * @returns {boolean} true on success
+ */
+function sendRtcOffer() {
+    // Generate the SDP offer and assign it to the peer object
+    rtc.peer.createOffer().then(function(offer) {
+        return rtc.peer.setLocalDescription(offer);
+    }).then(function() {
+        // Wait for ICE gathering to complete (this looks messy but it's just waiting for that)
+        return new Promise(function(resolve) {
+            if (rtc.peer.iceGatheringState === 'complete') {
+                resolve();
+            } else {
+                function checkState() {
+                    if (rtc.peer.iceGatheringState === 'complete') {
+                        rtc.peer.removeEventListener('icegatheringstatechange', checkState);
+                        resolve();
+                    }
+                }
+                rtc.peer.addEventListener('icegatheringstatechange', checkState);
+            }
+        });
+    }).then(function() {
+        // Generate the specifics of the offer
+        var offer = rtc.peer.localDescription;
+        offer.sdp = sdpFilterCodec('audio', rtc.codec, offer.sdp);
+
+        // Send the offer to the server via WebSocket
+        serverSocket.send(
+        `{
+            "webRtcOffer": {
+                "type": ${JSON.stringify(offer.type)},
+                "sdp": ${JSON.stringify(offer.sdp)}
+            }
+        }`
+        );
+    }).catch(function(e) {
+        console.error(e);
+        return false;
+    });
+    // Return true if nothing bad happened
+    return true;
+}
+
+/**
+ * Take the SDP response from the server and configure the peer
+ * @param {string} answerType SDP type
+ * @param {string} answerSdp SDP
+ */
+function gotRtcResponse(answerType, answerSdp) {
+    console.log("Got WebRTC response from server");
+    var answer = {
+        type: answerType,
+        sdp: answerSdp
+    }
+    rtc.peer.setRemoteDescription(answer);
+}
+
+/**
+ * Find an SDP based on the specified codec
+ * 
+ * This was stolen directly from the aiortc example
+ * 
+ * @param {string} kind 'audio' or 'video'
+ * @param {string} codec specific codec descriptor
+ * @param {*} realSdp existing SDP
+ * @returns new SDP using specified codec
+ */
+function sdpFilterCodec(kind, codec, realSdp) {
+    var allowed = []
+    var rtxRegex = new RegExp('a=fmtp:(\\d+) apt=(\\d+)\r$');
+    var codecRegex = new RegExp('a=rtpmap:([0-9]+) ' + escapeRegExp(codec))
+    var videoRegex = new RegExp('(m=' + kind + ' .*?)( ([0-9]+))*\\s*$')
+    
+    var lines = realSdp.split('\n');
+
+    var isKind = false;
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('m=' + kind + ' ')) {
+            isKind = true;
+        } else if (lines[i].startsWith('m=')) {
+            isKind = false;
+        }
+
+        if (isKind) {
+            var match = lines[i].match(codecRegex);
+            if (match) {
+                allowed.push(parseInt(match[1]));
+            }
+
+            match = lines[i].match(rtxRegex);
+            if (match && allowed.includes(parseInt(match[2]))) {
+                allowed.push(parseInt(match[1]));
+            }
+        }
+    }
+
+    var skipRegex = 'a=(fmtp|rtcp-fb|rtpmap):([0-9]+)';
+    var sdp = '';
+
+    isKind = false;
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('m=' + kind + ' ')) {
+            isKind = true;
+        } else if (lines[i].startsWith('m=')) {
+            isKind = false;
+        }
+
+        if (isKind) {
+            var skipMatch = lines[i].match(skipRegex);
+            if (skipMatch && !allowed.includes(parseInt(skipMatch[2]))) {
+                continue;
+            } else if (lines[i].match(videoRegex)) {
+                sdp += lines[i].replace(videoRegex, '$1 ' + allowed.join(' ')) + '\n';
+            } else {
+                sdp += lines[i] + '\n';
+            }
+        } else {
+            sdp += lines[i] + '\n';
+        }
+    }
+
+    return sdp;
+}
+
+/***********************************************************************************
+    Audio Handling Functions
+***********************************************************************************/
+
+/** 
+* Checks for browser compatibility and sets up audio devices
+* @return {bool} True on success
+*/
+function startAudioDevices() {
+    // Create audio context
+    audio.context = new AudioContext();
+    console.log("Created audio context");
+
+    // Create analyzer node for volume meter under volume slider
+    audio.outputAnalyzer = audio.context.createAnalyser();
+    audio.outputPcmData = new Float32Array(audio.outputAnalyzer.fftSize);
+
+    // Create gain node for output volume and connect it to the default output device
+    audio.outputGain = audio.context.createGain();
+    audio.outputGain.gain.value = 0.75;
+    audio.outputGain.connect(audio.context.destination);
+
+    // Enable volume slider
+    $("#console-volume").prop('disabled', false);
+}
+
+/**
+ * Updates audio meters based on current data. Only called after both mic & speaker are set up and running (otherwise errors)
+ */
+function audioMeterCallback() {
+    // Get data from speaker & mic
+    audio.outputAnalyzer.getFloatTimeDomainData(audio.outputPcmData);
+    audio.inputAnalyzer.getFloatTimeDomainData(audio.inputPcmData);
+
+    // Output meter
+    let sumSquares = 0.0;
+    for (const amplitude of audio.outputPcmData) { sumSquares += amplitude * amplitude; }
+    audio.outputMeter.value = Math.sqrt(sumSquares / audio.outputPcmData.length);
+
+    // Input meter (only show when PTT)
+    if (pttActive) {
+        sumSquares = 0.0;
+        for (const amplitude of audio.inputPcmData) { sumSquares += amplitude * amplitude; }
+        audio.inputMeter.value = Math.sqrt(sumSquares / audio.outputPcmData.length);
+    } else {
+        audio.inputMeter.value = 0.0;
+    }
+
+    window.requestAnimationFrame(audioMeterCallback);
+}
+
+/**
+ *  Change volume of console based on slider
+ */
+function changeVolume() {
+    // Convert 0-100 to 0-1 for multiplication with audio, using an inverse-square curve for better "logarithmic" volume
+    const newVol = Math.pow($("#console-volume").val() / 100, 2);
+    // Set gain node to new value
+    audio.outputGain.gain.value = newVol;
+}
+
+/**
+ * Play an HTML-embedded sound object
+ * @param {string} soundId id of the HTML embed object
+ */
+function playSound(soundId) {
+    document.getElementById(soundId).play();
+}
+
+/***********************************************************************************
+    Websocket Client Functions
+***********************************************************************************/
+
+/**
+ * Connect to the server's websocket
+ */
+function connectWebsocket() {
+    // Change button
+    $("#server-connect-btn").html("Connecting");
+    $("#server-connect-btn").prop("disabled",true);
+    // Change status
+    $("#navbar-status").html("Connecting websocket");
+    // Log
+    console.log("Websocket connecting to " + config.serverAddress + ":" + config.serverPort);
+    // Setup socket
+    serverSocket = new WebSocket("wss://" + config.serverAddress + ":" + config.serverPort);
+    serverSocket.onerror = handleSocketError;
+    serverSocket.onmessage = recvSocketMessage;
+    serverSocket.onclose = handleSocketClose;
+    // Wait for connection
+    waitForWebSocket(serverSocket, onConnectWebsocket);
+}
+
+/**
+ * Wait for websocket connection to be active
+ * @param {WebSocket} websocket 
+ * @param {function} callback callback function to execute once connected
+ */
+function waitForWebSocket(socket, callback=null) {
+    setTimeout(
+        function() {
+            if (socket.readyState === 1) {
+                if (callback != null) {
+                    callback();
+                }
+            } else {
+                waitForWebSocket(socket, callback);
+            }
+        },
+    5); // 5 ms timeout
+}
+
+/**
+ * Called once the websocket connection is active
+ */
+function onConnectWebsocket() {
+    //$("#navbar-status").html("Websocket connected");
+    console.log("Websocket connected");
+}
+
+/**
+ * Disconnect from the websocket server
+ */
+function disconnectWebsocket() {
+    
+    // Disconnect if we had a connection open
+    if (serverSocket.readyState == WebSocket.OPEN) {
+        console.log("Disconnecting from server");
+        serverSocket.close();
+    }
+}
+
+/**
+ * Callback for a new message from the websocket server and
+ * parses the JSON command object. 
+ * 
+ * This command protocol is specified in `Docs/Websocket JSON Signalling.md`
+ * @param {event} event 
+ */
+function recvSocketMessage(event) {
+
+    // Convert to JSON
+    var msgObj;
+    try {
+        msgObj = JSON.parse(event.data);
+    } catch (e) {
+        console.warn("Got invalid data from websocket: " + event.data);
+        console.warn(e);
+        return;
+    }
+
+    // Iterate through each message and its data (normally we'd only get one at a time, but I suppose you could get more than one)
+    for (const [key, value] of Object.entries(msgObj)) {
+        // Handle message data based on key type
+        switch (key) {
+
+            // List of configured radios
+            case "radios":
+                // Set our radioList object to the attached radioList object (which was parsed from JSON)
+                console.log("Got master radio list update");
+                radioList = value['radioList'];
+                // Update the UI
+                populateRadios();
+                bindRadioCardButtons();
+                break;
+
+            // Single radio status update
+            case "radio":
+                // get index of radio
+                const idx = value['index'];
+                console.log("Got status update for radio " + idx.toString());
+                // get status data
+                var radioStatus = value['status'];
+                // Strip out \u0000's from strings (TODO: figure out why python's decode method adds these and how to get rid of them)
+                radioStatus['zone'] = radioStatus['zone'].replace(/\0/g, '');
+                radioStatus['chan'] = radioStatus['chan'].replace(/\0/g, '');
+                // Update radio entry
+                radioList[idx] = radioStatus;
+                // Update radio card
+                updateRadioCard(idx);
+                // Update bottom controls
+                updateRadioControls();
+                break;
+
+            // WebRTC SDP answer
+            case "webRtcAnswer":
+                // get params
+                answerType = value['type'];
+                answerSdp = value['sdp'];
+                gotRtcResponse(answerType,answerSdp);
+                break;
+
+            // Speaker audio data
+            case "audioData":
+                // make sure it's actually speaker data
+                if (value['source'] != "speaker") {
+                    break;
+                }
+                // Process it
+                getSpkrData(value['data']);
+                break;
+
+            // NACK handler
+            case "nack":
+                console.error("Got NACK from server");
+                break;
+        }
+    }
+}
+
+/**
+ * Handle the websocket closing
+ * @param {event} event socket closed event
+ */
+function handleSocketClose(event) {
+    var clean = true;
+    console.warn("Server connection closed");
+    if (event.data) {console.warn(event.data);}
+
+    // If it wasn't a commanded disconnect, alert the user after we're done cleaning up
+    if (!disconnecting) {
+        clean = false;
+    }
+
+    // Cleanup
+    stopWebRtc();
+    serverSocket = null;
+    disconnected();
+
+    // Show the optional alert
+    if (!clean) {
+        window.alert("Lost connection to server!");
+    }
+}
+
+/**
+ * Handle connection errors from the server
+ * @param {event} event 
+ */
+function handleSocketError(event) {
+    console.error("Server connection error: " + event.data);
+    window.alert("Server connection errror: " + event.data);
+}
+
+/***********************************************************************************
+    Utility Functions
+***********************************************************************************/
+
+/**
+ * Escape a string to regex?
+ * 
+ * This was also stolen from the aiortc example. Not exactly sure what it does yet
+ * @param {string} string string to escape
+ * @returns {string} replaced string
+ */
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}</script>
+    <style class="silex-inline-styles" type="text/css">.body-initial {background-color: rgba(255,255,255,1); position: static;}.silex-id-1478366444112-1 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366444112-0 {background-color: transparent; min-height: 100px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1478366450713-3 {background-color: transparent; position: static; margin-top: -1px;}.silex-id-1478366450713-2 {background-color: transparent; min-height: 269px; position: relative; margin-left: auto; margin-right: auto;}.silex-id-1442914737143-3 {width: 343px; top: 56px; left: 355px; min-height: 154px; position: absolute;}.silex-id-1644075474949-2 {min-height: 100px; background-color: rgb(255, 255, 255); position: relative; margin-left: auto; margin-right: auto;}@media only screen and (max-width: 480px) {}</style>
     <title></title>
     
 
     
 <style class="silex-prodotype-style" type="text/css" data-style-id="all-style">.text-element > .silex-element-content {font-family: 'Roboto', sans-serif;}</style><link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" class="silex-custom-font"><meta name="viewport" content="width=device-width, initial-scale=1"><style type="text/css" class="silex-style-settings">.website-width {width: 1200px;}@media (min-width: 481px) {.silex-editor {min-width: 1400px;}}</style><!-- Silex HEAD tag do not remove --><html>
-    <head>
-        <title>Python Radio Console</title>
 
-        <!-- Topcoat CSS -->
-        <link rel="stylesheet" type="text/css" href="css/topcoat-mobile-dark.css">
+<head>
+    <title>Python Radio Console</title>
 
-        <!-- CSS.gg Icons -->
-        <link href='https://css.gg/css' rel='stylesheet'>
+    <!-- Topcoat CSS -->
+    <link rel="stylesheet" type="text/css" href="css/topcoat-mobile-dark.css">
 
-        <!-- Custom CSS -->
-        <link rel="stylesheet" type="text/css" href="css/custom.css">
+    <!-- CSS.gg Icons -->
+    <link href='https://css.gg/css' rel='stylesheet'>
 
-        <!-- JQuery -->
-        <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
 
-        <!-- DayJS -->
-        <script type="text/javascript" src="dayjs.min.js"></script>
-        <script type="text/javascript" src="https://unpkg.com/dayjs@1.8.21/plugin/utc.js"></script>
-        <script>dayjs.extend(window.dayjs_plugin_utc)</script>
+    <!-- JQuery -->
+    <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
 
-        <!-- js-cookie -->
-        <script type="text/javascript" src="js.cookie.min.js"></script>
+    <!-- DayJS -->
+    <script type="text/javascript" src="dayjs.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/dayjs@1.8.21/plugin/utc.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_utc)
+    </script>
 
-        <!-- audio resampler -->
-        <script type="text/javascript" src="wave-resampler.js"></script>
-    </head>
-    <body>
-        <!-- Top Nav Bar -->
-        <div id="navbar">
+    <!-- js-cookie -->
+    <script type="text/javascript" src="js.cookie.min.js"></script>
 
-            <!-- Menu Dropdown -->
-            <div class="navbar-item">
-                <button id="button-mainmenu" class="topcoat-button--quiet" onclick="toggleMainMenu()">
+    <!-- audio resampler -->
+    <script type="text/javascript" src="wave-resampler.js"></script>
+</head>
+
+<body>
+    <!-- Top Nav Bar -->
+    <div id="navbar">
+
+        <!-- Menu Dropdown -->
+        <div class="navbar-item">
+            <button id="button-mainmenu" class="topcoat-button--quiet" onclick="toggleMainMenu()">
                     <ion-icon name="menu-sharp"></ion-icon>
                 </button>
-            </div>
-
-            <!-- Logo and Title -->
-            <div id="navbar-logo" class="navbar-item">RadioConsole</div>
-
-            <!-- Version -->
-            <div id="navbar-version" class="navbar-item">v0.1 - </div>
-
-            <!-- Server Status -->
-            <div id="navbar-status" class="navbar-item">Disconnected</div>
-
-            <!-- Clock -->
-            <div id="navbar-clock">
-                <div id="clock"></div>
-            </div>
-
-            <!-- Volume Slider -->
-            <div id="navbar-volume" class="navbar-item">
-                <ion-icon name="volume-medium-sharp"></ion-icon>
-                <input type="range" class="topcoat-range" id="console-volume" value="75" oninput="changeVolume()" disabled>
-            </div>
-
-            <!-- Mic & Speaker Volume Meters -->
-            <div id="navbar-meters" class="navbar-item">
-                <div class="meter-container">
-                    <ion-icon name="mic-sharp"></ion-icon>
-                    <meter id="meter-mic" min="0" max="0.4" high="0.3"></meter>
-                </div>
-                <div class="meter-container">
-                    <ion-icon name="volume-off-sharp"></ion-icon>
-                    <meter id="meter-spkr" min="0" max="0.4" high="0.3"></meter>
-                </div>
-            </div>
-
-            <!-- Clear Float -->
-            <br class="navbar-clear" />
         </div>
 
-        <!-- Main Body -->
-        <div id="body">
-            <!-- Sidebar Menu -->
-            <div class="sidebar sidebar-closed" id="sidebar-mainmenu">
-                <ul>
-                    <li>
-                        <a href="#" onclick="showPopup('#server-config-popup');toggleMainMenu();">
-                            <span class="sidebar-icon"><ion-icon name="server-sharp"></ion-icon></span>
-                            <span class="sidebar-item">Server Config</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" onclick="showPopup('#client-config-popup');toggleMainMenu();">
-                            <span class="sidebar-icon"><ion-icon name="settings-sharp"></ion-icon></span>
-                            <span class="sidebar-item">Client Config</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="sidebar-icon"><ion-icon name="information-circle-sharp"></ion-icon></span>
-                            <span class="sidebar-item">About</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+        <!-- Logo and Title -->
+        <div id="navbar-logo" class="navbar-item">RadioConsole</div>
 
-            <!-- Main Layout for Radio Entries -->
-            <div id="main-layout">
+        <!-- Version -->
+        <div id="navbar-version" class="navbar-item">v0.1 - </div>
 
-                <!-- Radio Cards will populate here -->
+        <!-- Server Status -->
+        <div id="navbar-status" class="navbar-item">Disconnected</div>
 
-            </div>
-
-            <!-- Placeholder text before connection to server -->
-            <div id="text-placeholder" style="display: none;">
-                <h2>Please connect to a server to begin.</h2>
-            </div>
-
-            <!-- Main Body Dimming Div -->
-            <div id="body-dimmer" style="display: none;" onclick="closePopup()"></div>
+        <!-- Clock -->
+        <div id="navbar-clock">
+            <div id="clock"></div>
         </div>
 
-        <!-- Control Footer -->
-        <div id="controlbar">
+        <!-- Volume Slider -->
+        <div id="navbar-volume" class="navbar-item">
+            <ion-icon name="volume-medium-sharp"></ion-icon>
+            <input type="range" class="topcoat-range" id="console-volume" value="75" oninput="changeVolume()" disabled>
+            </div>
 
-            <!-- Radio Controls -->
-            <div id="ptt-controls">
-                <!-- Left Button Bar -->
-				<div class="topcoat-button-bar">
-					<!-- Ptt Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-ptt" title="PTT" class="topcoat-button-bar__button--large" onpointerdown="startPtt()" onpointerup="stopPtt()" disabled>
+        <!-- Mic & Speaker Volume Meters -->
+        <div id="navbar-meters" class="navbar-item">
+            <div class="meter-container">
+                <ion-icon name="mic-sharp"></ion-icon>
+                <meter id="meter-mic" min="0" max="0.4" high="0.3"></meter>
+            </div>
+            <div class="meter-container">
+                <ion-icon name="volume-off-sharp"></ion-icon>
+                <meter id="meter-spkr" min="0" max="0.4" high="0.3"></meter>
+            </div>
+        </div>
+
+        <!-- Clear Float -->
+        <br class="navbar-clear" />
+        </div>
+
+    <!-- Main Body -->
+    <div id="body">
+        <!-- Sidebar Menu -->
+        <div class="sidebar sidebar-closed" id="sidebar-mainmenu">
+            <ul>
+                <li>
+                    <a href="#" onclick="showPopup('#server-config-popup');toggleMainMenu();">
+                        <span class="sidebar-icon"><ion-icon name="server-sharp"></ion-icon></span>
+                        <span class="sidebar-item">Server Config</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showPopup('#client-config-popup');toggleMainMenu();">
+                        <span class="sidebar-icon"><ion-icon name="settings-sharp"></ion-icon></span>
+                        <span class="sidebar-item">Client Config</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="sidebar-icon"><ion-icon name="information-circle-sharp"></ion-icon></span>
+                        <span class="sidebar-item">About</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Layout for Radio Entries -->
+        <div id="main-layout">
+
+            <!-- Radio Cards will populate here -->
+
+        </div>
+
+        <!-- Placeholder text before connection to server -->
+        <div id="text-placeholder" style="display: none;">
+            <h2>Please connect to a server to begin.</h2>
+        </div>
+
+        <!-- Main Body Dimming Div -->
+        <div id="body-dimmer" style="display: none;" onclick="closePopup()"></div>
+    </div>
+
+    <!-- Control Footer -->
+    <div id="controlbar">
+
+        <!-- Radio Controls -->
+        <div id="ptt-controls">
+            <!-- Left Button Bar -->
+            <div class="topcoat-button-bar">
+                <!-- Ptt Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-ptt" title="PTT" class="topcoat-button-bar__button--large" onpointerdown="startPtt()" onpointerup="stopPtt()" disabled>
                             <span>PTT</span>
                         </button>
-                    </div>
-				</div>
-			</div>
-			<div id="radio0-controls">
-                <div class="topcoat-button-bar">
-                    <!-- Mon Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-mon" title="Monitor" class="topcoat-button-bar__button--large" onclick="toggleMonitor()" disabled>
-                            <ion-icon name="volume-off-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Nuis Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-nuis" title="Nuisance Delete" class="topcoat-button-bar__button--large" onclick="nuisanceDelete()" disabled>
-                            <ion-icon name="ban-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Low Power Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-lpwr" title="Low Power" class="topcoat-button-bar__button--large" onclick="togglePower()" disabled>
-                            <ion-icon name="speedometer-outline"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Scan Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-scan" title="Scan" class="topcoat-button-bar__button--large" onclick="toggleScan()" disabled>
-                            <ion-icon name="reload-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Dir Button -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-dir" title="Talkaround" class="topcoat-button-bar__button--large" onclick="toggleDirect()" disabled>
-                            <ion-icon name="exit-sharp"></ion-icon>
-                        </button>
-                    </div>
                 </div>
-			</div>
-			<div id="radio1-controls">
-                <!-- Selected Channel LCD screen -->
-                <div class="lcd">
-                    <div id="selected-zone-text"></div>
-                    <div id="selected-chan-text"></div>
-                </div>
-			</div>
-			<div id="radio2-controls">
-                <!-- Right Button Bar -->
-                <div class="topcoat-button-bar">
-                    <!-- Channel Down -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-chanup" title="Channel Down" class="topcoat-button-bar__button--large" onclick="changeChannel(true)" disabled>
-                            <ion-icon name="caret-down-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Channel Up -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-chandn" title="Channel Up" class="topcoat-button-bar__button--large" onclick="changeChannel(false)" disabled>
-                            <ion-icon name="caret-up-sharp"></ion-icon>
-                        </button>
-                    </div>
-                </div>
-				<!-- Right Button Bar 2 -->
-                <div class="topcoat-button-bar">
-					<!-- Brightness Down -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-britup" title="Brightness Down" class="topcoat-button-bar__button--large" onclick="changeBrightness(true)" disabled>
-                            <ion-icon name="caret-down-sharp"></ion-icon>
-                        </button>
-                    </div>
-                    <!-- Brightness Up -->
-                    <div class="topcoat-button-bar__item">
-                        <button id="control-britdn" title="Brightness Up" class="topcoat-button-bar__button--large" onclick="changeBrightness(false)" disabled>
-                            <ion-icon name="caret-up-sharp"></ion-icon>
-                        </button>
-                    </div>
-				</div>
             </div>
         </div>
-
-        <!-- Server Config Popup -->
-        <div id="server-config-popup" class="popup" style="display: none;">
-            <div class="popup-header">
-                <h2>Server Config</h2>
-                <div class="popup-buttons">
-                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
+        <div id="radio0-controls">
+            <div class="topcoat-button-bar">
+                <!-- Mon Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-mon" title="Monitor" class="topcoat-button-bar__button--large" onclick="toggleMonitor()" disabled>
+                            <ion-icon name="volume-off-sharp"></ion-icon>
+                        </button>
+                </div>
+                <!-- Nuis Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-nuis" title="Nuisance Delete" class="topcoat-button-bar__button--large" onclick="nuisanceDelete()" disabled>
+                            <ion-icon name="ban-sharp"></ion-icon>
+                        </button>
+                </div>
+                <!-- Low Power Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-lpwr" title="Low Power" class="topcoat-button-bar__button--large" onclick="togglePower()" disabled>
+                            <ion-icon name="speedometer-outline"></ion-icon>
+                        </button>
+                </div>
+                <!-- Scan Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-scan" title="Scan" class="topcoat-button-bar__button--large" onclick="toggleScan()" disabled>
+                            <ion-icon name="reload-sharp"></ion-icon>
+                        </button>
+                </div>
+                <!-- Dir Button -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-dir" title="Talkaround" class="topcoat-button-bar__button--large" onclick="toggleDirect()" disabled>
+                            <ion-icon name="exit-sharp"></ion-icon>
+                        </button>
                 </div>
             </div>
-            <div class="popup-content">
-                <table class="popup-table">
-                    <!-- Server address -->
-                    <tr>
-                        <td width="33%">
-                            <h3>Server Address</h3>
+        </div>
+        <div id="radio1-controls">
+            <!-- Selected Channel LCD screen -->
+            <div class="lcd">
+                <div id="selected-zone-text"></div>
+                <div id="selected-chan-text"></div>
+            </div>
+        </div>
+        <div id="radio2-controls">
+            <!-- Right Button Bar -->
+            <div class="topcoat-button-bar">
+                <!-- Channel Down -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-chanup" title="Channel Down" class="topcoat-button-bar__button--large" onclick="changeChannel(true)" disabled>
+                            <ion-icon name="caret-down-sharp"></ion-icon>
+                        </button>
+                </div>
+                <!-- Channel Up -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-chandn" title="Channel Up" class="topcoat-button-bar__button--large" onclick="changeChannel(false)" disabled>
+                            <ion-icon name="caret-up-sharp"></ion-icon>
+                        </button>
+                </div>
+            </div>
+            <!-- Right Button Bar 2 -->
+            <div class="topcoat-button-bar">
+                <!-- Brightness Down -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-britup" title="Brightness Down" class="topcoat-button-bar__button--large" onclick="changeBrightness(true)" disabled>
+                            <ion-icon name="caret-down-sharp"></ion-icon>
+                        </button>
+                </div>
+                <!-- Brightness Up -->
+                <div class="topcoat-button-bar__item">
+                    <button id="control-britdn" title="Brightness Up" class="topcoat-button-bar__button--large" onclick="changeBrightness(false)" disabled>
+                            <ion-icon name="caret-up-sharp"></ion-icon>
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Config Popup -->
+    <div id="server-config-popup" class="popup" style="display: none;">
+        <div class="popup-header">
+            <h2>Server Config</h2>
+            <div class="popup-buttons">
+                <a href="#" onclick="closePopup(this)">
+                    <ion-icon name="close-circle-sharp"></ion-icon>
+                </a>
+            </div>
+        </div>
+        <div class="popup-content">
+            <table class="popup-table">
+                <!-- Server address -->
+                <tr>
+                    <td width="33%">
+                        <h3>Server Address</h3>
+                    </td>
+                    <td width="67%">
+                        <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-address" value="" placeholder="IP address or hostname">
                         </td>
-                        <td width="67%">
-                            <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-address" value="" placeholder="IP address or hostname">
+                </tr>
+                <!-- Server Port -->
+                <tr>
+                    <td>
+                        <h3>Server Port</h3>
+                    </td>
+                    <td>
+                        <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-port" value="" placeholder="Port number">
                         </td>
-                    </tr>
-                    <!-- Server Port -->
-                    <tr>
-                        <td>
-                            <h3>Server Port</h3>
-                        </td>
-                        <td>
-                            <input type="text" inputmode="decimal" class="topcoat-text-input" id="server-port" value="" placeholder="Port number">
-                        </td>
-                    </tr>
-                    <!-- Connect / Disconnect Button -->
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" id="server-connect-btn" onclick="connectButton()">Connect</button>
-                        </td>
-                    </tr>
-                    <!-- Auto-connect -->
-                    <tr>
-                        <td>
-                            <h3>Auto-Connect</h3>
-                        </td>
-                        <td>
-                            <label class="topcoat-checkbox">
+                </tr>
+                <!-- Connect / Disconnect Button -->
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="topcoat-button--cta" id="server-connect-btn" onclick="connectButton()">Connect</button>
+                    </td>
+                </tr>
+                <!-- Auto-connect -->
+                <tr>
+                    <td>
+                        <h3>Auto-Connect</h3>
+                    </td>
+                    <td>
+                        <label class="topcoat-checkbox">
                                 <input type="checkbox" id="server-autoconnect">
                                 <div class="topcoat-checkbox__checkmark"></div>
                             </label>
-                        </td>
-                    </tr>
-                    <!-- Save Button -->
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" onclick="saveServerConfig(); closePopup(this)">Save</button>
-                        </td>
-                    </tr>
-                </table>
+                    </td>
+                </tr>
+                <!-- Save Button -->
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="topcoat-button--cta" onclick="saveServerConfig(); closePopup(this)">Save</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Client Config Popup -->
+    <div id="client-config-popup" class="popup" style="display: none;">
+        <div class="popup-header">
+            <h2>Client Config</h2>
+            <div class="popup-buttons">
+                <a href="#" onclick="closePopup(this)">
+                    <ion-icon name="close-circle-sharp"></ion-icon>
+                </a>
             </div>
         </div>
-
-        <!-- Client Config Popup -->
-        <div id="client-config-popup" class="popup" style="display: none;">
-            <div class="popup-header">
-                <h2>Client Config</h2>
-                <div class="popup-buttons">
-                    <a href="#" onclick="closePopup(this)"><ion-icon name="close-circle-sharp"></ion-icon></a>
-                </div>
-            </div>
-            <div class="popup-content">
-                <table class="popup-table">
-                    <!-- Time Format -->
-                    <tr>
-                        <td width="33%">
-                            <h3>Time Format</h3>
-                        </td>
-                        <td width="67%">
-                            <select id="client-timeformat">
+        <div class="popup-content">
+            <table class="popup-table">
+                <!-- Time Format -->
+                <tr>
+                    <td width="33%">
+                        <h3>Time Format</h3>
+                    </td>
+                    <td width="67%">
+                        <select id="client-timeformat">
                                 <option value="Local">Local</option>
                                 <option value="UTC">UTC</option>
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <button class="topcoat-button--cta" onclick="saveClientConfig()">Save</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="topcoat-button--cta" onclick="saveClientConfig()">Save</button>
+                    </td>
+                </tr>
+            </table>
         </div>
+    </div>
 
-        <!-- Sound Files -->
-        <audio src="sound/TRBO_Normal_TPT.mp3" id="sound-tx-granted" autostart="false" autostart="0"></audio>
+    <!-- Sound Files -->
+    <audio src="sound/TRBO_Normal_TPT.mp3" id="sound-tx-granted" autostart="false" autostart="0"></audio>
 
-        <!-- Icon Script -->
-        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-        <!-- Runtime Script -->
-        <script type="text/javascript" src="client.js"></script>
-    </body>
-    
+    <!-- Icon Script -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <!-- Runtime Script -->
+    <script type="text/javascript" src="client.js"></script>
+</body>
+
 </html><!-- End of Silex HEAD tag do not remove --></head>
 
 <body data-silex-id="body-initial" class="body-initial all-style enable-mobile prevent-resizable prevent-selectable editable-style silex-runtime" data-silex-type="container-element" style="">
@@ -550,7 +1897,7 @@ input[type="radio"]:disabled + .topcoat-radio-button__checkmark {opacity: 0.3; c
     </section><section data-silex-type="container-element" class="container-element editable-style silex-id-1478366450713-3 section-element prevent-resizable" data-silex-id="silex-id-1478366450713-3" style="">
         <div data-silex-type="container-element" class="editable-style silex-element-content silex-id-1478366450713-2 container-element website-width" data-silex-id="silex-id-1478366450713-2" style="">
 
-            <div data-silex-id="silex-id-1442914737143-3" class="editable-style silex-id-1442914737143-3 text-element" data-silex-type="text-element" style="width: 241px; min-height: 122px;">
+            <div data-silex-id="silex-id-1442914737143-3" class="editable-style silex-id-1442914737143-3 text-element" data-silex-type="text-element" style="">
                 <div class="silex-element-content normal"><p>Powered by <a href="https://www.silex.me/" target="_blank" title="Silex website builder,  free and open source" linktype="LinkTypeExternal">Silex website builder</a></p></div>
             </div>
         </div>
